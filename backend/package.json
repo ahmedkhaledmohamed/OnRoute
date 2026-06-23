@@ -3,15 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "echo 'Run: npx vercel dev'",
-    "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@vercel/node": "^5.0.0",
-    "typescript": "^5.7.0",
-    "vercel": "^42.0.0"
+    "typescript": "^5.7.0"
   }
 }
