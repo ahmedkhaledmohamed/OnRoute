@@ -22,7 +22,7 @@ final class RouteViewModel {
     var searchQuery = "coffee"
     var maxDetourMinutes: Double = 15
     var openNowOnly = true
-    var selectedCategory: Category?
+    var selectedCategory: Category? = .coffee
     var isLoading = false
     var errorMessage: String?
 
