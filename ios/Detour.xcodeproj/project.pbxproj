@@ -211,7 +211,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Detour/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Detour - Search Along Route";
+				INFOPLIST_KEY_CFBundleDisplayName = Detours;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Detour uses your location to find places along your route";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -303,7 +303,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Detour/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Detour - Search Along Route";
+				INFOPLIST_KEY_CFBundleDisplayName = Detours;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Detour uses your location to find places along your route";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
