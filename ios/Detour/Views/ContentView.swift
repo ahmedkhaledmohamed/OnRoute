@@ -266,17 +266,18 @@ struct ContentView: View {
                 } else {
                     List {
                         ForEach(viewModel.filteredResults) { poi in
-                            POIResultRow(
-                                poi: poi,
-                                isSelected: viewModel.selectedPOI == poi,
-                                onNavigate: { navigateTo($0) }
-                            )
+                            Button {
+                                selectPOI(poi)
+                            } label: {
+                                POIResultRow(
+                                    poi: poi,
+                                    isSelected: viewModel.selectedPOI == poi,
+                                    onNavigate: { navigateTo($0) }
+                                )
+                            }
+                            .buttonStyle(.plain)
                             .listRowInsets(EdgeInsets())
                             .listRowSeparator(.hidden)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                selectPOI(poi)
-                            }
                         }
                     }
                     .listStyle(.plain)
