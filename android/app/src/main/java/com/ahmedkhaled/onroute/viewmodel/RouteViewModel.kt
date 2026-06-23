@@ -6,12 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.ahmedkhaled.onroute.model.TravelMode
+import com.ahmedkhaled.onroute.model.*
+import com.ahmedkhaled.onroute.service.ApiService
 import com.ahmedkhaled.onroute.service.LocationService
 import com.ahmedkhaled.onroute.service.PlaceAutocompleteService
 import com.ahmedkhaled.onroute.service.PlaceSuggestion
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
+import com.google.maps.android.PolyUtil
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,12 +39,39 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     var travelMode by mutableStateOf(TravelMode.DRIVE)
+    var searchQuery by mutableStateOf("coffee")
+        private set
+    var selectedCategory by mutableStateOf<Category?>(Category.COFFEE)
+    var maxDetourMinutes by mutableStateOf(15f)
+    var openNowOnly by mutableStateOf(true)
+
+    var routePoints by mutableStateOf<List<LatLng>>(emptyList())
+        private set
+    var routeDurationFormatted by mutableStateOf<String?>(null)
+        private set
+    var routeDistanceFormatted by mutableStateOf<String?>(null)
+        private set
+    var poiResults by mutableStateOf<List<POIResult>>(emptyList())
+        private set
+    var selectedPOI by mutableStateOf<POIResult?>(null)
+    var isLoading by mutableStateOf(false)
+        private set
+    var errorMessage by mutableStateOf<String?>(null)
 
     val isSearchReady: Boolean
         get() = originLatLng != null && destinationLatLng != null
 
+    val filteredResults: List<POIResult>
+        get() = poiResults.filter { poi ->
+            val withinDetour = poi.detourSeconds <= (maxDetourMinutes * 60).toInt()
+            val openFilter = !openNowOnly || poi.isOpenNow
+            val isForward = isAheadOnRoute(poi)
+            withinDetour && openFilter && isForward
+        }
+
     private val placesService = PlaceAutocompleteService(Places.createClient(application))
     val locationService = LocationService(application)
+    private val apiService = ApiService.create()
 
     private var originDebounceJob: Job? = null
     private var destinationDebounceJob: Job? = null
@@ -98,6 +127,49 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
         originSuggestions = emptyList()
     }
 
+    fun selectCategory(category: Category) {
+        selectedCategory = category
+        searchQuery = category.query
+        if (isSearchReady) search()
+    }
+
+    fun search() {
+        val origin = originLatLng ?: return
+        val destination = destinationLatLng ?: return
+        isLoading = true
+        errorMessage = null
+        poiResults = emptyList()
+        selectedPOI = null
+
+        viewModelScope.launch {
+            try {
+                val response = apiService.search(
+                    SearchRequest(
+                        origin = LatLngBody(origin.latitude, origin.longitude),
+                        destination = LatLngBody(destination.latitude, destination.longitude),
+                        query = searchQuery,
+                        maxDetourMinutes = maxDetourMinutes.toInt(),
+                        openNow = openNowOnly,
+                        travelMode = travelMode.apiValue
+                    )
+                )
+
+                routePoints = PolyUtil.decode(response.route.encodedPolyline)
+
+                val minutes = response.route.durationSeconds / 60
+                routeDurationFormatted = if (minutes >= 60) "${minutes / 60}h ${minutes % 60}min" else "$minutes min"
+                val km = response.route.distanceMeters / 1000.0
+                routeDistanceFormatted = if (km >= 10) "%.0f km".format(km) else "%.1f km".format(km)
+
+                poiResults = response.results
+                isLoading = false
+            } catch (e: Exception) {
+                errorMessage = e.message ?: "Search failed"
+                isLoading = false
+            }
+        }
+    }
+
     fun swapOriginDestination() {
         val tmpQuery = originQuery
         val tmpLatLng = originLatLng
@@ -122,5 +194,27 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
         destinationLatLng = null
         destinationName = null
         destinationSuggestions = emptyList()
+    }
+
+    private fun isAheadOnRoute(poi: POIResult): Boolean {
+        if (routePoints.size < 2) return true
+        val poiLatLng = poi.latLng
+        var closestIndex = 0
+        var closestDist = Double.MAX_VALUE
+        for (i in routePoints.indices) {
+            val d = distanceBetween(poiLatLng, routePoints[i])
+            if (d < closestDist) {
+                closestDist = d
+                closestIndex = i
+            }
+        }
+        val progress = closestIndex.toDouble() / (routePoints.size - 1)
+        return progress > 0.05
+    }
+
+    private fun distanceBetween(a: LatLng, b: LatLng): Double {
+        val dx = a.latitude - b.latitude
+        val dy = a.longitude - b.longitude
+        return dx * dx + dy * dy
     }
 }
