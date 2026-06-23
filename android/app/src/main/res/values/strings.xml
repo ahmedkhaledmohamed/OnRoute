@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">OnRoute</string>
+    <string name="tagline">Find what\'s worth the stop</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="search_along_route">Search Along Route</string>
+    <string name="current_location">Current Location</string>
+    <string name="get_started">Get Started</string>
+    <string name="searching">Searching…</string>
+    <string name="no_places_found">No places found</string>
+    <string name="retry">Retry</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="open_in_maps">Open in Maps</string>
+    <string name="clear">Clear</string>
+    <string name="places_found">%d places found</string>
+    <string name="max_detour">Max detour: %d min</string>
+    <string name="open_now">Open now</string>
+    <string name="open">Open</string>
+    <string name="closed">Closed</string>
+    <string name="send_feedback">Send feedback</string>
+    <string name="navigate">Navigate</string>
+    <string name="swap">Swap origin and destination</string>
+    <string name="feature_search">Search along your route</string>
+    <string name="feature_search_desc">Enter where you\'re going and what you\'re looking for</string>
+    <string name="feature_ranked">Ranked by detour time</string>
+    <string name="feature_ranked_desc">Every result shows how many minutes it adds to your trip</string>
+    <string name="feature_max">Set your max detour</string>
+    <string name="feature_max_desc">Only see places within your time budget</string>
 </resources>

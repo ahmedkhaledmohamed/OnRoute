@@ -154,7 +154,7 @@ async function computeRoute(
 
   return {
     encodedPolyline: route.polyline.encodedPolyline,
-    durationSeconds: parseInt(route.duration.replace("s", ""), 10),
+    durationSeconds: parseDuration(route.duration),
     distanceMeters: route.distanceMeters,
   };
 }
@@ -226,7 +226,7 @@ async function searchAlongRoute(
     let detourSeconds = 0;
     for (const leg of legs) {
       if (leg.duration) {
-        detourSeconds += parseInt(String(leg.duration).replace("s", ""), 10);
+        detourSeconds += parseDuration(leg.duration);
       }
     }
 
@@ -254,6 +254,13 @@ async function searchAlongRoute(
       photoReference: photos?.[0]?.name,
     };
   });
+}
+
+function parseDuration(duration: unknown): number {
+  if (typeof duration === "number") return duration;
+  if (typeof duration !== "string") return 0;
+  const match = duration.match(/(\d+)/);
+  return match ? parseInt(match[1], 10) : 0;
 }
 
 function formatDetour(seconds: number): string {
