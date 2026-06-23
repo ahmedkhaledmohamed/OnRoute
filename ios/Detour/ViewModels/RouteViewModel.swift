@@ -16,6 +16,28 @@ final class RouteViewModel {
     var originSuggestions: [MKLocalSearchCompletion] = []
     var destinationSuggestions: [MKLocalSearchCompletion] = []
 
+    var route: MKRoute?
+    var isLoading = false
+    var errorMessage: String?
+
+    var routeDurationFormatted: String? {
+        guard let route else { return nil }
+        let minutes = Int(route.expectedTravelTime / 60)
+        if minutes >= 60 {
+            return "\(minutes / 60)h \(minutes % 60)min"
+        }
+        return "\(minutes) min"
+    }
+
+    var routeDistanceFormatted: String? {
+        guard let route else { return nil }
+        let km = route.distance / 1000
+        if km >= 10 {
+            return String(format: "%.0f km", km)
+        }
+        return String(format: "%.1f km", km)
+    }
+
     var isSearchReady: Bool {
         originCoordinate != nil && destinationCoordinate != nil
     }
@@ -84,8 +106,32 @@ final class RouteViewModel {
     }
 
     func search() {
-        guard isSearchReady else { return }
-        // Route rendering comes in Step 3
+        guard let origin = originCoordinate, let destination = destinationCoordinate else { return }
+        isLoading = true
+        errorMessage = nil
+        route = nil
+
+        Task {
+            do {
+                let request = MKDirections.Request()
+                request.source = MKMapItem(placemark: MKPlacemark(coordinate: origin))
+                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
+                request.transportType = .automobile
+
+                let directions = MKDirections(request: request)
+                let response = try await directions.calculate()
+
+                await MainActor.run {
+                    self.route = response.routes.first
+                    self.isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "Couldn't find a route between these locations."
+                    self.isLoading = false
+                }
+            }
+        }
     }
 
     func clear() {
@@ -97,6 +143,8 @@ final class RouteViewModel {
         destinationName = nil
         originSuggestions = []
         destinationSuggestions = []
+        route = nil
+        errorMessage = nil
     }
 
     func swapOriginDestination() {
