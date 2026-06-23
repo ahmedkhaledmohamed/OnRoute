@@ -186,11 +186,16 @@ final class RouteViewModel {
         originSuggestions = []
     }
 
+    private var categoryDebounceTask: Task<Void, Never>?
+
     func selectCategory(_ category: Category) {
         selectedCategory = category
         searchQuery = category.query
-        if isSearchReady {
-            search()
+        categoryDebounceTask?.cancel()
+        categoryDebounceTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled, isSearchReady else { return }
+            await MainActor.run { search() }
         }
     }
 
