@@ -24,4 +24,5 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_CFBundleDisplayName: "Detour"
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "Detour uses your location to find places along your route"
         DEVELOPMENT_TEAM: ""

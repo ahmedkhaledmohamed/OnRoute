@@ -7,15 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0EEDC1E6DD9108EA0AE8A885 /* RouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B18C6839AF676782FE9B9E7 /* RouteViewModel.swift */; };
 		6AB25AD0A9491C75902E754A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E150B83C6F7E7F04A52B6 /* ContentView.swift */; };
+		7E8F09B7A11FDFB5EBC27072 /* RouteInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84E35D42657E57843972001 /* RouteInputSheet.swift */; };
 		81010D2B957C94D45C92BAF3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB5686AC153B430D7432DCC1 /* Assets.xcassets */; };
+		970647272864B6E7E04E285C /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16729255A438961AA638BD91 /* LocationManager.swift */; };
 		BC9B6EF21947F116D988F333 /* DetourApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 457751B969B38BD06C2487E9 /* DetourApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		16729255A438961AA638BD91 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		457751B969B38BD06C2487E9 /* DetourApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetourApp.swift; sourceTree = "<group>"; };
+		4B18C6839AF676782FE9B9E7 /* RouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteViewModel.swift; sourceTree = "<group>"; };
 		641E150B83C6F7E7F04A52B6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CB5686AC153B430D7432DCC1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E84E35D42657E57843972001 /* RouteInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteInputSheet.swift; sourceTree = "<group>"; };
 		EF57F5AA71249753B4707C76 /* Detour.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Detour.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -39,6 +45,7 @@
 			isa = PBXGroup;
 			children = (
 				641E150B83C6F7E7F04A52B6 /* ContentView.swift */,
+				E84E35D42657E57843972001 /* RouteInputSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -54,6 +61,7 @@
 		D2B370615F2BDC55DCF52D48 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				4B18C6839AF676782FE9B9E7 /* RouteViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -61,6 +69,7 @@
 		E11AE0409E07F886C5224909 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				16729255A438961AA638BD91 /* LocationManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -150,6 +159,9 @@
 			files = (
 				6AB25AD0A9491C75902E754A /* ContentView.swift in Sources */,
 				BC9B6EF21947F116D988F333 /* DetourApp.swift in Sources */,
+				970647272864B6E7E04E285C /* LocationManager.swift in Sources */,
+				7E8F09B7A11FDFB5EBC27072 /* RouteInputSheet.swift in Sources */,
+				0EEDC1E6DD9108EA0AE8A885 /* RouteViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -165,6 +177,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Detour;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Detour uses your location to find places along your route";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -253,6 +266,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Detour;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Detour uses your location to find places along your route";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
