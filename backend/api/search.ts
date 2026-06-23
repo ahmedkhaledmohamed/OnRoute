@@ -338,12 +338,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const route = await computeRoute(body.origin, body.destination, travelMode);
 
+    // Places Search Along Route only supports DRIVE mode
     let results = await searchAlongRoute(
       route.encodedPolyline,
       body.query,
       body.origin,
       openNow,
-      travelMode
+      "DRIVE"
     );
 
     for (const result of results) {
