@@ -139,10 +139,16 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
         originSuggestions = emptyList()
     }
 
+    private var categoryDebounceJob: Job? = null
+
     fun selectCategory(category: Category) {
         selectedCategory = category
         searchQuery = category.query
-        if (isSearchReady) search()
+        categoryDebounceJob?.cancel()
+        categoryDebounceJob = viewModelScope.launch {
+            delay(300)
+            if (isSearchReady) search()
+        }
     }
 
     fun search() {

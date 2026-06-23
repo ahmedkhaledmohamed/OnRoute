@@ -8,7 +8,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -242,12 +244,63 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
 private fun ResultsSheet(viewModel: RouteViewModel) {
     val context = LocalContext.current
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            "${viewModel.filteredResults.size} places found",
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+        // Selected POI header with Open in Maps + clear
+        if (viewModel.selectedPOI != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    viewModel.selectedPOI?.name ?: "",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1
+                )
+                FilledTonalButton(
+                    onClick = {
+                        viewModel.selectedPOI?.let { poi ->
+                            NavigationService.openGoogleMaps(
+                                context, poi,
+                                viewModel.originName,
+                                viewModel.destinationName
+                            )
+                        }
+                    },
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text("Open in Maps", fontSize = 12.sp)
+                }
+                IconButton(
+                    onClick = { viewModel.clearDetour() },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(Icons.Default.Close, "Clear", modifier = Modifier.size(18.dp))
+                }
+            }
+            HorizontalDivider()
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "${viewModel.filteredResults.size} places found",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(
+                onClick = { NavigationService.sendFeedback(context) },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(Icons.Default.Email, "Send feedback", modifier = Modifier.size(18.dp))
+            }
+        }
 
         CategoryBar(
             selectedCategory = viewModel.selectedCategory,
