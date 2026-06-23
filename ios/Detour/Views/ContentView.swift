@@ -4,6 +4,8 @@ import MapKit
 struct ContentView: View {
     @State private var viewModel = RouteViewModel()
     @State private var locationManager = LocationManager()
+    @State private var navigatingPOI: POIResult?
+    @State private var showNavSheet = false
     @State private var position: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832),
@@ -69,6 +71,45 @@ struct ContentView: View {
         .onChange(of: viewModel.route) {
             fitRouteOnMap()
         }
+        .confirmationDialog(
+            "Navigate to \(navigatingPOI?.name ?? "")",
+            isPresented: $showNavSheet,
+            titleVisibility: .visible
+        ) {
+            ForEach(NavigationApp.available) { app in
+                Button(app.rawValue) {
+                    if let poi = navigatingPOI {
+                        NavigationService.navigate(
+                            to: poi,
+                            from: viewModel.originCoordinate,
+                            destination: viewModel.destinationCoordinate,
+                            using: app
+                        )
+                    }
+                }
+            }
+            if let poi = navigatingPOI {
+                Button("Copy Address") {
+                    NavigationService.copyAddress(poi)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+    }
+
+    private func navigateTo(_ poi: POIResult) {
+        let available = NavigationApp.available
+        if available.count == 1 {
+            NavigationService.navigate(
+                to: poi,
+                from: viewModel.originCoordinate,
+                destination: viewModel.destinationCoordinate,
+                using: available[0]
+            )
+        } else {
+            navigatingPOI = poi
+            showNavSheet = true
+        }
     }
 
     private var resultsList: some View {
@@ -85,16 +126,20 @@ struct ContentView: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(viewModel.filteredResults) { poi in
-                        POIResultRow(poi: poi, isSelected: viewModel.selectedPOI == poi)
-                            .onTapGesture {
-                                viewModel.selectedPOI = poi
-                                withAnimation {
-                                    position = .region(MKCoordinateRegion(
-                                        center: poi.coordinate,
-                                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                                    ))
-                                }
+                        POIResultRow(
+                            poi: poi,
+                            isSelected: viewModel.selectedPOI == poi,
+                            onNavigate: { navigateTo($0) }
+                        )
+                        .onTapGesture {
+                            viewModel.selectedPOI = poi
+                            withAnimation {
+                                position = .region(MKCoordinateRegion(
+                                    center: poi.coordinate,
+                                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                                ))
                             }
+                        }
                         Divider().padding(.leading, 16)
                     }
                 }

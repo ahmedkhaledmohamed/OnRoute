@@ -26,3 +26,9 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: "Detour"
         INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "Detour uses your location to find places along your route"
         DEVELOPMENT_TEAM: ""
+    info:
+      path: Detour/Info.plist
+      properties:
+        LSApplicationQueriesSchemes:
+          - comgooglemaps
+          - waze

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0EEDC1E6DD9108EA0AE8A885 /* RouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B18C6839AF676782FE9B9E7 /* RouteViewModel.swift */; };
+		5A36E023CFB4D3D3CF1225A6 /* NavigationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A15779B28E7A339C0E8D92D /* NavigationService.swift */; };
 		60608E991569DD9413D2DBA8 /* POIAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47695EC4C971D4435926BB18 /* POIAnnotationView.swift */; };
 		69F45D18F798DA61626C5BDA /* POIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 518029481AD32340074FA2DB /* POIResult.swift */; };
 		6AB25AD0A9491C75902E754A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E150B83C6F7E7F04A52B6 /* ContentView.swift */; };
@@ -25,10 +26,12 @@
 		2803F3CE2962AA35F9D26BC4 /* POIResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIResultRow.swift; sourceTree = "<group>"; };
 		457751B969B38BD06C2487E9 /* DetourApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetourApp.swift; sourceTree = "<group>"; };
 		47695EC4C971D4435926BB18 /* POIAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIAnnotationView.swift; sourceTree = "<group>"; };
+		4A15779B28E7A339C0E8D92D /* NavigationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationService.swift; sourceTree = "<group>"; };
 		4B18C6839AF676782FE9B9E7 /* RouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteViewModel.swift; sourceTree = "<group>"; };
 		518029481AD32340074FA2DB /* POIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIResult.swift; sourceTree = "<group>"; };
 		641E150B83C6F7E7F04A52B6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		71C1B6E9A43FD96AF5A12EA9 /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
+		7D5ED2CDD1DB4A92A2DF45F7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8CDED49EE5D40E55804F057D /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		CB5686AC153B430D7432DCC1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E84E35D42657E57843972001 /* RouteInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteInputSheet.swift; sourceTree = "<group>"; };
@@ -85,6 +88,7 @@
 			children = (
 				8CDED49EE5D40E55804F057D /* APIService.swift */,
 				16729255A438961AA638BD91 /* LocationManager.swift */,
+				4A15779B28E7A339C0E8D92D /* NavigationService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -94,6 +98,7 @@
 			children = (
 				CB5686AC153B430D7432DCC1 /* Assets.xcassets */,
 				457751B969B38BD06C2487E9 /* DetourApp.swift */,
+				7D5ED2CDD1DB4A92A2DF45F7 /* Info.plist */,
 				0F3CE28D5E12A7CFD74DD260 /* Models */,
 				E11AE0409E07F886C5224909 /* Services */,
 				D2B370615F2BDC55DCF52D48 /* ViewModels */,
@@ -177,6 +182,7 @@
 				BC9B6EF21947F116D988F333 /* DetourApp.swift in Sources */,
 				949DB6D0152C407A94781220 /* FiltersView.swift in Sources */,
 				970647272864B6E7E04E285C /* LocationManager.swift in Sources */,
+				5A36E023CFB4D3D3CF1225A6 /* NavigationService.swift in Sources */,
 				60608E991569DD9413D2DBA8 /* POIAnnotationView.swift in Sources */,
 				69F45D18F798DA61626C5BDA /* POIResult.swift in Sources */,
 				C9075DC5C8DD991968F6520A /* POIResultRow.swift in Sources */,
@@ -196,6 +202,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Detour/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Detour;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Detour uses your location to find places along your route";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -285,6 +292,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Detour/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Detour;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Detour uses your location to find places along your route";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

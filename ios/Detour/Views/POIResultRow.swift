@@ -3,6 +3,7 @@ import SwiftUI
 struct POIResultRow: View {
     let poi: POIResult
     let isSelected: Bool
+    var onNavigate: ((POIResult) -> Void)?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -43,6 +44,17 @@ struct POIResultRow: View {
             }
 
             Spacer()
+
+            if onNavigate != nil {
+                Button {
+                    onNavigate?(poi)
+                } label: {
+                    Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(.blue)
+                }
+                .buttonStyle(.plain)
+            }
 
             DetourBadge(poi: poi, isSelected: false)
         }
