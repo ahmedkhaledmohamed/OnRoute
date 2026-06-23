@@ -6,10 +6,18 @@ struct RouteInputSheet: View {
     var locationManager: LocationManager
     var onSearch: () -> Void
 
-    @State private var activeField: Field?
+    @FocusState private var focusedField: Field?
 
-    enum Field {
+    enum Field: Hashable {
         case origin, destination
+    }
+
+    private var activeSuggestions: [MKLocalSearchCompletion] {
+        switch focusedField {
+        case .origin: return viewModel.originSuggestions
+        case .destination: return viewModel.destinationSuggestions
+        case nil: return []
+        }
     }
 
     var body: some View {
@@ -23,7 +31,7 @@ struct RouteInputSheet: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
 
-            if activeField != nil {
+            if !activeSuggestions.isEmpty {
                 suggestionsList
             }
 
@@ -53,7 +61,9 @@ struct RouteInputSheet: View {
                 set: { viewModel.updateOriginQuery($0) }
             ))
             .textFieldStyle(.plain)
-            .onTapGesture { activeField = .origin }
+            .focused($focusedField, equals: .origin)
+            .textContentType(.fullStreetAddress)
+            .autocorrectionDisabled()
 
             if viewModel.originQuery.isEmpty {
                 Button {
@@ -61,7 +71,7 @@ struct RouteInputSheet: View {
                     locationManager.requestLocation()
                     if let loc = locationManager.currentLocation {
                         viewModel.useCurrentLocation(loc)
-                        activeField = nil
+                        focusedField = nil
                     }
                 } label: {
                     Image(systemName: "location.fill")
@@ -70,9 +80,7 @@ struct RouteInputSheet: View {
                 }
             } else {
                 Button {
-                    viewModel.originQuery = ""
-                    viewModel.originCoordinate = nil
-                    viewModel.originName = nil
+                    viewModel.updateOriginQuery("")
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 14))
@@ -95,13 +103,13 @@ struct RouteInputSheet: View {
                 set: { viewModel.updateDestinationQuery($0) }
             ))
             .textFieldStyle(.plain)
-            .onTapGesture { activeField = .destination }
+            .focused($focusedField, equals: .destination)
+            .textContentType(.fullStreetAddress)
+            .autocorrectionDisabled()
 
             if !viewModel.destinationQuery.isEmpty {
                 Button {
-                    viewModel.destinationQuery = ""
-                    viewModel.destinationCoordinate = nil
-                    viewModel.destinationName = nil
+                    viewModel.updateDestinationQuery("")
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 14))
@@ -122,20 +130,16 @@ struct RouteInputSheet: View {
     }
 
     private var suggestionsList: some View {
-        let suggestions = activeField == .origin
-            ? viewModel.originSuggestions
-            : viewModel.destinationSuggestions
-
-        return ScrollView {
+        ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(suggestions, id: \.self) { suggestion in
+                ForEach(activeSuggestions, id: \.self) { suggestion in
                     Button {
-                        if activeField == .origin {
+                        if focusedField == .origin {
                             viewModel.selectOrigin(suggestion)
                         } else {
                             viewModel.selectDestination(suggestion)
                         }
-                        activeField = nil
+                        focusedField = nil
                     } label: {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(suggestion.title)
@@ -159,7 +163,10 @@ struct RouteInputSheet: View {
     }
 
     private var searchButton: some View {
-        Button(action: onSearch) {
+        Button {
+            focusedField = nil
+            onSearch()
+        } label: {
             HStack {
                 Image(systemName: "magnifyingglass")
                 Text("Search Along Route")
