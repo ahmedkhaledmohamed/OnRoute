@@ -25,9 +25,11 @@ No existing app makes detour time the primary ranking across all POI categories.
 - **Forward-only** — never shows places behind you on the route
 - **Category search** — coffee, food, gas, grocery, pharmacy, EV charging
 - **Travel modes** — drive, walk, or bike
-- **Detour preview** — tap a result to see the A→B→C route on the map
+- **Detour preview** — tap a result to see the A→B→C route on the map with waypoint markers
 - **Navigation handoff** — open the route in Google Maps, Apple Maps, or Waze
 - **Works globally** — not limited to any city
+- **Dark mode** — full support on both platforms
+- **Accessibility** — VoiceOver (iOS) and TalkBack (Android) labels
 
 ## Tech Stack
 
@@ -41,7 +43,7 @@ No existing app makes detour time the primary ranking across all POI categories.
 | **iOS Beta** | TestFlight |
 | **Android Beta** | Firebase App Distribution |
 
-All routing/POI logic lives server-side. Native apps are thin clients that render routes and markers.
+All routing/POI logic lives server-side. Native apps are thin clients that render routes and markers. Backend includes rate limiting (20 req/min per IP), CORS restriction, input validation, and in-memory caching (1hr TTL).
 
 ## Project Structure
 
@@ -60,6 +62,7 @@ docs/                Research, competitive analysis, product strategy
 | Backend API | https://backend-navy-iota.vercel.app |
 | Landing Page | https://onroute-landing.vercel.app |
 | iOS TestFlight | https://testflight.apple.com/join/rSk4Az7M |
+| Android Firebase | https://console.firebase.google.com/u/0/project/onroute-akm-2026/appdistribution/app/android:com.ahmedkhaled.onroute/releases/7j3c5pr905a70 |
 | Firebase Console | https://console.firebase.google.com/project/onroute-akm-2026 |
 
 ## Development
@@ -102,4 +105,8 @@ cp local.defaults.properties secrets.properties  # add MAPS_API_KEY
 }
 ```
 
-Returns POIs ranked by detour time with route polyline.
+Returns POIs ranked by detour time with route polyline. Supports `travelMode`: `"DRIVE"`, `"WALK"`, `"BICYCLE"`.
+
+## Release Notes
+
+See [CHANGELOG.md](CHANGELOG.md) for full release history.
