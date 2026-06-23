@@ -165,34 +165,7 @@ struct ContentView: View {
             if viewModel.route != nil {
                 HStack(spacing: 8) {
                     tripInfoPill
-
-                    if hasDetour, let poi = viewModel.selectedPOI {
-                        Button {
-                            navigateTo(poi)
-                        } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
-                                    .font(.system(size: 10, weight: .bold))
-                                Text("Open in Maps")
-                                    .font(.caption.weight(.medium))
-                            }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 8)
-                            .background(.blue, in: Capsule())
-                            .foregroundStyle(.white)
-                        }
-
-                        Button {
-                            clearDetourRoute()
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 20))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-
                     Spacer()
-
                     Button {
                         showResults = true
                     } label: {
@@ -228,6 +201,39 @@ struct ContentView: View {
     private var resultsSheet: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                if hasDetour, let poi = viewModel.selectedPOI {
+                    HStack(spacing: 8) {
+                        tripInfoPill
+
+                        Button {
+                            navigateTo(poi)
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                                    .font(.system(size: 10, weight: .bold))
+                                Text("Open in Maps")
+                                    .font(.caption.weight(.medium))
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 8)
+                            .background(.blue, in: Capsule())
+                            .foregroundStyle(.white)
+                        }
+
+                        Spacer()
+
+                        Button {
+                            clearDetourRoute()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+
                 CategoryBar(viewModel: viewModel)
                     .padding(.vertical, 8)
 
