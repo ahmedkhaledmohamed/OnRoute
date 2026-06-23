@@ -30,7 +30,8 @@ final class RouteViewModel {
         poiResults.filter { poi in
             let withinDetour = poi.detourSeconds <= Int(maxDetourMinutes) * 60
             let openFilter = !openNowOnly || poi.isOpenNow
-            return withinDetour && openFilter
+            let isForward = isAheadOnRoute(poi)
+            return withinDetour && openFilter && isForward
         }
     }
 
@@ -221,6 +222,28 @@ final class RouteViewModel {
         swap(&originQuery, &destinationQuery)
         swap(&originCoordinate, &destinationCoordinate)
         swap(&originName, &destinationName)
+    }
+
+    private func isAheadOnRoute(_ poi: POIResult) -> Bool {
+        guard let polyline = route?.polyline else { return true }
+        let pointCount = polyline.pointCount
+        guard pointCount > 1 else { return true }
+
+        let poiMapPoint = MKMapPoint(poi.coordinate)
+        var closestIndex = 0
+        var closestDistance = Double.greatestFiniteMagnitude
+
+        for i in 0..<pointCount {
+            let routePoint = polyline.points()[i]
+            let dist = poiMapPoint.distance(to: routePoint)
+            if dist < closestDistance {
+                closestDistance = dist
+                closestIndex = i
+            }
+        }
+
+        let progress = Double(closestIndex) / Double(pointCount - 1)
+        return progress > 0.05
     }
 
     private func resolveCoordinate(for completion: MKLocalSearchCompletion) async -> CLLocationCoordinate2D? {
