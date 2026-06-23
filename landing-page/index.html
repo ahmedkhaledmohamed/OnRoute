@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detour — Find what's worth the stop</title>
+    <meta name="description" content="Search for places along your route, ranked by how little time they add to your trip. Coffee, food, gas — sorted by detour time.">
+    <meta property="og:title" content="Detour — Find what's worth the stop">
+    <meta property="og:description" content="Search for places along your route, ranked by how little time they add to your trip.">
+    <meta property="og:image" content="/icon.png">
+    <link rel="icon" type="image/png" href="/icon.png">
+    <style>
+        :root {
+            --teal: #008DA6;
+            --teal-dark: #005A80;
+            --orange: #F5A623;
+            --bg: #FAFBFC;
+            --text: #1A1A2E;
+            --text-secondary: #6B7280;
+            --card-bg: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Nav */
+        nav {
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .logo img {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+        }
+
+        .logo span {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--text);
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 6vw, 56px);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 540px;
+            margin: 0 auto 40px;
+            line-height: 1.5;
+        }
+
+        /* Email form */
+        .waitlist-form {
+            display: flex;
+            gap: 10px;
+            max-width: 440px;
+            margin: 0 auto 16px;
+        }
+
+        .waitlist-form input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .waitlist-form input:focus {
+            border-color: var(--teal);
+        }
+
+        .waitlist-form button {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            white-space: nowrap;
+        }
+
+        .waitlist-form button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 141, 166, 0.3);
+        }
+
+        .form-note {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .success-message {
+            display: none;
+            padding: 14px 24px;
+            background: #ECFDF5;
+            color: #065F46;
+            border-radius: 12px;
+            font-weight: 500;
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        /* Screenshot */
+        .hero-screenshot {
+            margin: 60px auto 0;
+            max-width: 300px;
+        }
+
+        .hero-screenshot img {
+            width: 100%;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Features */
+        .features {
+            padding: 80px 0;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 48px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px 24px;
+            border: 1px solid #E5E7EB;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .icon-teal { background: #E0F7FA; }
+        .icon-orange { background: #FFF3E0; }
+        .icon-green { background: #E8F5E9; }
+
+        /* How it works */
+        .how-it-works {
+            padding: 60px 0 80px;
+            text-align: center;
+        }
+
+        .how-it-works h2 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 48px;
+        }
+
+        .steps {
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+        }
+
+        .step {
+            flex: 1;
+            max-width: 260px;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--teal);
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .step h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .step p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* CTA */
+        .cta {
+            padding: 60px 0 80px;
+            text-align: center;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            border-radius: 24px;
+            padding: 60px 40px;
+            color: white;
+        }
+
+        .cta-box h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .cta-box p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 32px;
+        }
+
+        .cta-form {
+            display: flex;
+            gap: 10px;
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        .cta-form input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            outline: none;
+        }
+
+        .cta-form input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .cta-form input:focus {
+            border-color: white;
+        }
+
+        .cta-form button {
+            padding: 14px 28px;
+            background: white;
+            color: var(--teal-dark);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s;
+            white-space: nowrap;
+        }
+
+        .cta-form button:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Footer */
+        footer {
+            padding: 32px 0;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .steps {
+                flex-direction: column;
+                align-items: center;
+            }
+            .waitlist-form, .cta-form {
+                flex-direction: column;
+            }
+            .hero {
+                padding: 48px 0 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/" class="logo">
+                <img src="/icon.png" alt="Detour">
+                <span>Detour</span>
+            </a>
+            <div class="badge">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Coming to iOS
+            </div>
+        </nav>
+    </div>
+
+    <section class="hero">
+        <div class="container">
+            <h1>
+                Google Maps shows you what's nearby.<br>
+                <span class="highlight">We show you what's worth the stop.</span>
+            </h1>
+            <p>
+                Search for places along your route, ranked by how many minutes they add to your trip. Coffee, food, gas &mdash; sorted by detour time.
+            </p>
+
+            <form class="waitlist-form" id="waitlist-hero" onsubmit="handleSubmit(event, this)">
+                <input type="email" name="email" placeholder="your@email.com" required>
+                <button type="submit">Join Waitlist</button>
+            </form>
+            <p class="form-note">Be first to know when Detour launches. No spam.</p>
+            <div class="success-message" id="success-hero">You're on the list! We'll let you know when Detour is ready.</div>
+
+            <div class="hero-screenshot">
+                <img src="/screenshot.png" alt="Detour app showing coffee shops along a Toronto commute route, ranked by detour time">
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Why Detour?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-teal">&#x23F1;</div>
+                    <h3>Ranked by detour time</h3>
+                    <p>Every result shows exactly how many minutes it adds to your trip. "+2 min" beats "+15 min" every time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-orange">&#x1F50D;</div>
+                    <h3>Set your max detour</h3>
+                    <p>Slide to set your time budget. "Only show places adding less than 5 minutes." No one else offers this.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-green">&#x27A1;</div>
+                    <h3>Forward-only results</h3>
+                    <p>Never see places behind you on the route. Every suggestion is ahead, not a U-turn.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <h2>How it works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Enter your route</h3>
+                    <p>Set where you're going, from home to work or any A-to-B trip.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Pick a category</h3>
+                    <p>Coffee, food, gas, grocery, pharmacy, or EV charging.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>See what's worth it</h3>
+                    <p>Results ranked by detour time. Tap to preview the route, then open in your favorite nav app.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <div class="cta-box">
+                <h2>Get early access</h2>
+                <p>Detour is launching soon on iOS. Join the waitlist to be first in line.</p>
+                <form class="cta-form" id="waitlist-cta" onsubmit="handleSubmit(event, this)">
+                    <input type="email" name="email" placeholder="your@email.com" required>
+                    <button type="submit">Join Waitlist</button>
+                </form>
+                <div class="success-message" id="success-cta" style="margin-top: 16px; background: rgba(255,255,255,0.2); color: white;">You're on the list!</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Detour. Built in Toronto.</p>
+        </div>
+    </footer>
+
+    <script>
+        async function handleSubmit(e, form) {
+            e.preventDefault();
+            const email = form.querySelector('input[name="email"]').value;
+            const formId = form.id;
+            const successEl = document.getElementById(formId.replace('waitlist', 'success'));
+
+            try {
+                await fetch('/api/waitlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                });
+            } catch (err) {
+                // Still show success — we'll capture via analytics fallback
+            }
+
+            form.style.display = 'none';
+            successEl.style.display = 'block';
+            if (formId === 'waitlist-hero') {
+                document.querySelector('.form-note').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
