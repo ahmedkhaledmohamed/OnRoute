@@ -36,14 +36,16 @@ struct NavigationService {
     static func navigate(
         to poi: POIResult,
         from origin: CLLocationCoordinate2D?,
+        originName: String?,
         destination: CLLocationCoordinate2D?,
+        destinationName: String?,
         using app: NavigationApp
     ) {
         switch app {
         case .appleMaps:
             openAppleMaps(poi: poi, origin: origin, destination: destination)
         case .googleMaps:
-            openGoogleMaps(poi: poi, origin: origin, destination: destination)
+            openGoogleMaps(poi: poi, origin: origin, originName: originName, destination: destination, destinationName: destinationName)
         case .waze:
             openWaze(poi: poi)
         }
@@ -88,24 +90,22 @@ struct NavigationService {
     private static func openGoogleMaps(
         poi: POIResult,
         origin: CLLocationCoordinate2D?,
-        destination: CLLocationCoordinate2D?
+        originName: String?,
+        destination: CLLocationCoordinate2D?,
+        destinationName: String?
     ) {
-        var urlString = "comgooglemaps://?"
+        // Use Google Maps universal link with addresses for readable waypoints
+        var components = URLComponents(string: "https://www.google.com/maps/dir/")!
 
-        if let origin {
-            urlString += "saddr=\(origin.latitude),\(origin.longitude)"
-        }
+        let originStr = originName?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
+            ?? (origin.map { "\($0.latitude),\($0.longitude)" } ?? "")
+        let poiStr = poi.address.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? poi.name
+        let destStr = destinationName?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
+            ?? (destination.map { "\($0.latitude),\($0.longitude)" } ?? "")
 
-        if let destination {
-            urlString += "&daddr=\(destination.latitude),\(destination.longitude)"
-            urlString += "+to:\(poi.coordinate.latitude),\(poi.coordinate.longitude)"
-        } else {
-            urlString += "&daddr=\(poi.coordinate.latitude),\(poi.coordinate.longitude)"
-        }
+        components.path = "/maps/dir/\(originStr)/\(poiStr)/\(destStr)"
 
-        urlString += "&directionsmode=driving"
-
-        if let url = URL(string: urlString) {
+        if let url = components.url {
             UIApplication.shared.open(url)
         }
     }

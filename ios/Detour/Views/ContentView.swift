@@ -81,7 +81,9 @@ struct ContentView: View {
                         NavigationService.navigate(
                             to: poi,
                             from: viewModel.originCoordinate,
+                            originName: viewModel.originName,
                             destination: viewModel.destinationCoordinate,
+                            destinationName: viewModel.destinationName,
                             using: app
                         )
                     }
@@ -369,7 +371,9 @@ struct ContentView: View {
             NavigationService.navigate(
                 to: poi,
                 from: viewModel.originCoordinate,
+                originName: viewModel.originName,
                 destination: viewModel.destinationCoordinate,
+                destinationName: viewModel.destinationName,
                 using: available[0]
             )
         } else {
