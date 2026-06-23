@@ -32,6 +32,42 @@ interface SearchResponse {
   };
 }
 
+// In-memory cache — survives across requests in the same Vercel function instance
+const cache = new Map<string, { data: SearchResponse; timestamp: number }>();
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function getCacheKey(
+  origin: { lat: number; lng: number },
+  destination: { lat: number; lng: number },
+  query: string,
+  openNow: boolean
+): string {
+  const oLat = origin.lat.toFixed(3);
+  const oLng = origin.lng.toFixed(3);
+  const dLat = destination.lat.toFixed(3);
+  const dLng = destination.lng.toFixed(3);
+  return `${oLat},${oLng}|${dLat},${dLng}|${query.toLowerCase()}|${openNow}`;
+}
+
+function getFromCache(key: string): SearchResponse | null {
+  const entry = cache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setCache(key: string, data: SearchResponse): void {
+  // Evict old entries if cache grows too large
+  if (cache.size > 500) {
+    const oldest = cache.keys().next().value;
+    if (oldest) cache.delete(oldest);
+  }
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
 const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 async function computeRoute(
@@ -83,7 +119,6 @@ async function searchAlongRoute(
   encodedPolyline: string,
   query: string,
   origin: { lat: number; lng: number },
-  destination: { lat: number; lng: number },
   openNow: boolean
 ): Promise<POIResult[]> {
   const fieldMask = [
@@ -202,6 +237,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  const openNow = body.openNow !== false;
+  const cacheKey = getCacheKey(body.origin, body.destination, body.query, openNow);
+
+  // Check cache first
+  const cached = getFromCache(cacheKey);
+  if (cached) {
+    let results = [...cached.results];
+    if (body.maxDetourMinutes) {
+      const maxSeconds = body.maxDetourMinutes * 60;
+      results = results.filter((r) => r.detourSeconds <= maxSeconds);
+    }
+    return res.status(200).json({ ...cached, results, cached: true });
+  }
+
   try {
     const route = await computeRoute(body.origin, body.destination);
 
@@ -209,11 +258,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       route.encodedPolyline,
       body.query,
       body.origin,
-      body.destination,
-      body.openNow !== false
+      openNow
     );
 
-    // Recalculate detour as difference from direct route
     for (const result of results) {
       if (result.detourSeconds > 0) {
         const actualDetour = result.detourSeconds - route.durationSeconds;
@@ -222,19 +269,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    results.sort((a, b) => a.detourSeconds - b.detourSeconds);
+
+    const fullResponse: SearchResponse = { results, route };
+
+    // Cache the full unfiltered response
+    setCache(cacheKey, fullResponse);
+
+    // Apply maxDetourMinutes filter for this specific request
     if (body.maxDetourMinutes) {
       const maxSeconds = body.maxDetourMinutes * 60;
       results = results.filter((r) => r.detourSeconds <= maxSeconds);
     }
 
-    results.sort((a, b) => a.detourSeconds - b.detourSeconds);
-
-    const response: SearchResponse = {
-      results,
-      route,
-    };
-
-    return res.status(200).json(response);
+    return res.status(200).json({ results, route, cached: false });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown error";
