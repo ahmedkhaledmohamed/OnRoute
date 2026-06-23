@@ -6,6 +6,7 @@ interface SearchRequest {
   query: string;
   maxDetourMinutes?: number;
   openNow?: boolean;
+  travelMode?: "DRIVE" | "WALK" | "BICYCLE";
 }
 
 interface POIResult {
@@ -40,13 +41,14 @@ function getCacheKey(
   origin: { lat: number; lng: number },
   destination: { lat: number; lng: number },
   query: string,
-  openNow: boolean
+  openNow: boolean,
+  travelMode: string
 ): string {
   const oLat = origin.lat.toFixed(3);
   const oLng = origin.lng.toFixed(3);
   const dLat = destination.lat.toFixed(3);
   const dLng = destination.lng.toFixed(3);
-  return `${oLat},${oLng}|${dLat},${dLng}|${query.toLowerCase()}|${openNow}`;
+  return `${oLat},${oLng}|${dLat},${dLng}|${query.toLowerCase()}|${openNow}|${travelMode}`;
 }
 
 function getFromCache(key: string): SearchResponse | null {
@@ -72,7 +74,8 @@ const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 async function computeRoute(
   origin: { lat: number; lng: number },
-  destination: { lat: number; lng: number }
+  destination: { lat: number; lng: number },
+  travelMode: string = "DRIVE"
 ): Promise<{ encodedPolyline: string; durationSeconds: number; distanceMeters: number }> {
   const response = await fetch(
     "https://routes.googleapis.com/directions/v2:computeRoutes",
@@ -93,8 +96,8 @@ async function computeRoute(
             latLng: { latitude: destination.lat, longitude: destination.lng },
           },
         },
-        travelMode: "DRIVE",
-        routingPreference: "TRAFFIC_AWARE",
+        travelMode,
+        routingPreference: travelMode === "DRIVE" ? "TRAFFIC_AWARE" : undefined,
       }),
     }
   );
@@ -119,7 +122,8 @@ async function searchAlongRoute(
   encodedPolyline: string,
   query: string,
   origin: { lat: number; lng: number },
-  openNow: boolean
+  openNow: boolean,
+  travelMode: string = "DRIVE"
 ): Promise<POIResult[]> {
   const fieldMask = [
     "places.id",
@@ -143,7 +147,7 @@ async function searchAlongRoute(
         latitude: origin.lat,
         longitude: origin.lng,
       },
-      travelMode: "DRIVE",
+      travelMode,
     },
   };
 
@@ -238,7 +242,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const openNow = body.openNow !== false;
-  const cacheKey = getCacheKey(body.origin, body.destination, body.query, openNow);
+  const travelMode = body.travelMode || "DRIVE";
+  const cacheKey = getCacheKey(body.origin, body.destination, body.query, openNow, travelMode);
 
   // Check cache first
   const cached = getFromCache(cacheKey);
@@ -252,13 +257,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const route = await computeRoute(body.origin, body.destination);
+    const route = await computeRoute(body.origin, body.destination, travelMode);
 
     let results = await searchAlongRoute(
       route.encodedPolyline,
       body.query,
       body.origin,
-      openNow
+      openNow,
+      travelMode
     );
 
     for (const result of results) {

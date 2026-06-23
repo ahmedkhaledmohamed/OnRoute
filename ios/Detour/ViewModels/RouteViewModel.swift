@@ -23,6 +23,39 @@ final class RouteViewModel {
     var maxDetourMinutes: Double = 15
     var openNowOnly = true
     var selectedCategory: Category? = .coffee
+    var travelMode: TravelMode = .drive
+
+    enum TravelMode: String, CaseIterable, Identifiable {
+        case drive = "DRIVE"
+        case walk = "WALK"
+        case bike = "BICYCLE"
+
+        var id: String { rawValue }
+
+        var label: String {
+            switch self {
+            case .drive: return "Drive"
+            case .walk: return "Walk"
+            case .bike: return "Bike"
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .drive: return "car.fill"
+            case .walk: return "figure.walk"
+            case .bike: return "bicycle"
+            }
+        }
+
+        var mkTransportType: MKDirectionsTransportType {
+            switch self {
+            case .drive: return .automobile
+            case .walk: return .walking
+            case .bike: return .walking
+            }
+        }
+    }
     var isLoading = false
     var errorMessage: String?
 
@@ -174,7 +207,7 @@ final class RouteViewModel {
                     let dirRequest = MKDirections.Request()
                     dirRequest.source = MKMapItem(placemark: MKPlacemark(coordinate: origin))
                     dirRequest.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
-                    dirRequest.transportType = .automobile
+                    dirRequest.transportType = travelMode.mkTransportType
 
                     let directionsResponse = try await MKDirections(request: dirRequest).calculate()
                     await MainActor.run {
@@ -187,7 +220,8 @@ final class RouteViewModel {
                     destination: (destination.latitude, destination.longitude),
                     query: searchQuery,
                     maxDetourMinutes: Int(maxDetourMinutes),
-                    openNow: openNowOnly
+                    openNow: openNowOnly,
+                    travelMode: travelMode.rawValue
                 )
 
                 await MainActor.run {

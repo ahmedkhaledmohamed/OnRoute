@@ -24,7 +24,8 @@ struct APIService {
         destination: (lat: Double, lng: Double),
         query: String,
         maxDetourMinutes: Int? = nil,
-        openNow: Bool = true
+        openNow: Bool = true,
+        travelMode: String = "DRIVE"
     ) async throws -> SearchResponse {
         guard let url = URL(string: "\(baseURL)/api/search") else {
             throw APIError.invalidURL
@@ -35,6 +36,7 @@ struct APIService {
             "destination": ["lat": destination.lat, "lng": destination.lng],
             "query": query,
             "openNow": openNow,
+            "travelMode": travelMode,
         ]
 
         if let maxDetour = maxDetourMinutes {
