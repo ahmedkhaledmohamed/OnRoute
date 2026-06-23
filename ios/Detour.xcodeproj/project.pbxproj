@@ -14,6 +14,7 @@
 		6AB25AD0A9491C75902E754A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E150B83C6F7E7F04A52B6 /* ContentView.swift */; };
 		7E8F09B7A11FDFB5EBC27072 /* RouteInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84E35D42657E57843972001 /* RouteInputSheet.swift */; };
 		81010D2B957C94D45C92BAF3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB5686AC153B430D7432DCC1 /* Assets.xcassets */; };
+		8344EC4E820C6ECF1E947027 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51745CAE85552C31ADC0C31 /* OnboardingView.swift */; };
 		949DB6D0152C407A94781220 /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71C1B6E9A43FD96AF5A12EA9 /* FiltersView.swift */; };
 		970647272864B6E7E04E285C /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16729255A438961AA638BD91 /* LocationManager.swift */; };
 		A7D1D5B9A395AF542F0369B0 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CDED49EE5D40E55804F057D /* APIService.swift */; };
@@ -36,6 +37,7 @@
 		CB5686AC153B430D7432DCC1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E84E35D42657E57843972001 /* RouteInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteInputSheet.swift; sourceTree = "<group>"; };
 		EF57F5AA71249753B4707C76 /* Detour.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Detour.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F51745CAE85552C31ADC0C31 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -60,6 +62,7 @@
 			children = (
 				641E150B83C6F7E7F04A52B6 /* ContentView.swift */,
 				71C1B6E9A43FD96AF5A12EA9 /* FiltersView.swift */,
+				F51745CAE85552C31ADC0C31 /* OnboardingView.swift */,
 				47695EC4C971D4435926BB18 /* POIAnnotationView.swift */,
 				2803F3CE2962AA35F9D26BC4 /* POIResultRow.swift */,
 				E84E35D42657E57843972001 /* RouteInputSheet.swift */,
@@ -183,6 +186,7 @@
 				949DB6D0152C407A94781220 /* FiltersView.swift in Sources */,
 				970647272864B6E7E04E285C /* LocationManager.swift in Sources */,
 				5A36E023CFB4D3D3CF1225A6 /* NavigationService.swift in Sources */,
+				8344EC4E820C6ECF1E947027 /* OnboardingView.swift in Sources */,
 				60608E991569DD9413D2DBA8 /* POIAnnotationView.swift in Sources */,
 				69F45D18F798DA61626C5BDA /* POIResult.swift in Sources */,
 				C9075DC5C8DD991968F6520A /* POIResultRow.swift in Sources */,
@@ -204,6 +208,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Detour/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Detour;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Detour uses your location to find places along your route";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -294,6 +299,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Detour/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Detour;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Detour uses your location to find places along your route";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
