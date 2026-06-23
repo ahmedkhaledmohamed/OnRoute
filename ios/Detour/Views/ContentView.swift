@@ -86,23 +86,36 @@ struct ContentView: View {
                     .stroke(.orange, lineWidth: 5)
             }
 
+            if let selectedPOI = viewModel.selectedPOI,
+               let origin = viewModel.originCoordinate,
+               let destination = viewModel.destinationCoordinate {
+                Annotation("Start", coordinate: origin) {
+                    WaypointMarker("A", color: .green, label: "Start")
+                }
+                Annotation(selectedPOI.name, coordinate: selectedPOI.coordinate) {
+                    WaypointMarker("B", color: .orange, label: selectedPOI.name)
+                        .onTapGesture { clearDetourRoute() }
+                }
+                Annotation("End", coordinate: destination) {
+                    WaypointMarker("C", color: .red, label: "End")
+                }
+            }
+
             ForEach(viewModel.filteredResults) { poi in
                 let isSelected = viewModel.selectedPOI == poi
                 let hasSelection = viewModel.selectedPOI != nil
 
-                Annotation(isSelected ? poi.name : "", coordinate: poi.coordinate) {
-                    DetourBadge(poi: poi, isSelected: isSelected)
-                        .opacity(hasSelection && !isSelected ? 0.25 : 1.0)
-                        .scaleEffect(hasSelection && !isSelected ? 0.7 : 1.0)
-                        .animation(.easeInOut(duration: 0.25), value: hasSelection)
-                        .onTapGesture {
-                            if isSelected {
-                                clearDetourRoute()
-                            } else {
+                if !isSelected {
+                    Annotation("", coordinate: poi.coordinate) {
+                        DetourBadge(poi: poi, isSelected: false)
+                            .opacity(hasSelection ? 0.2 : 1.0)
+                            .scaleEffect(hasSelection ? 0.6 : 1.0)
+                            .animation(.easeInOut(duration: 0.25), value: hasSelection)
+                            .onTapGesture {
                                 selectPOI(poi)
                             }
-                        }
-                        .accessibilityLabel("\(poi.name), \(poi.detourFormatted) detour")
+                            .accessibilityLabel("\(poi.name), \(poi.detourFormatted) detour")
+                    }
                 }
             }
         }
@@ -120,20 +133,28 @@ struct ContentView: View {
                 HStack(spacing: 8) {
                     tripInfoPill
 
-                    if detourRoute != nil {
+                    if detourRoute != nil, let poi = viewModel.selectedPOI {
                         Button {
-                            clearDetourRoute()
+                            navigateTo(poi)
                         } label: {
                             HStack(spacing: 4) {
-                                Image(systemName: "xmark")
+                                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
                                     .font(.system(size: 10, weight: .bold))
-                                Text("Clear detour")
+                                Text("Open in Maps")
                                     .font(.caption.weight(.medium))
                             }
                             .padding(.horizontal, 10)
                             .padding(.vertical, 8)
-                            .background(.orange.opacity(0.15), in: Capsule())
-                            .foregroundStyle(.orange)
+                            .background(.blue, in: Capsule())
+                            .foregroundStyle(.white)
+                        }
+
+                        Button {
+                            clearDetourRoute()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundStyle(.secondary)
                         }
                     }
 
