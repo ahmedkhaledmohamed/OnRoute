@@ -19,7 +19,7 @@ struct ContentView: View {
                         .stroke(.blue, lineWidth: 5)
                 }
 
-                ForEach(viewModel.poiResults) { poi in
+                ForEach(viewModel.filteredResults) { poi in
                     Annotation(poi.name, coordinate: poi.coordinate) {
                         DetourBadge(poi: poi, isSelected: viewModel.selectedPOI == poi)
                             .onTapGesture {
@@ -41,7 +41,15 @@ struct ContentView: View {
                         .padding(.bottom, 8)
                 }
 
-                if !viewModel.poiResults.isEmpty {
+                if viewModel.route != nil {
+                    CategoryBar(viewModel: viewModel)
+                        .padding(.vertical, 6)
+
+                    FiltersBar(viewModel: viewModel)
+                        .padding(.bottom, 6)
+                }
+
+                if !viewModel.filteredResults.isEmpty {
                     resultsList
                 }
 
@@ -66,7 +74,7 @@ struct ContentView: View {
     private var resultsList: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("\(viewModel.poiResults.count) places found")
+                Text("\(viewModel.filteredResults.count) places found")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -76,7 +84,7 @@ struct ContentView: View {
 
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(viewModel.poiResults) { poi in
+                    ForEach(viewModel.filteredResults) { poi in
                         POIResultRow(poi: poi, isSelected: viewModel.selectedPOI == poi)
                             .onTapGesture {
                                 viewModel.selectedPOI = poi
