@@ -87,10 +87,20 @@ struct ContentView: View {
             }
 
             ForEach(viewModel.filteredResults) { poi in
-                Annotation(poi.name, coordinate: poi.coordinate) {
-                    DetourBadge(poi: poi, isSelected: viewModel.selectedPOI == poi)
+                let isSelected = viewModel.selectedPOI == poi
+                let hasSelection = viewModel.selectedPOI != nil
+
+                Annotation(isSelected ? poi.name : "", coordinate: poi.coordinate) {
+                    DetourBadge(poi: poi, isSelected: isSelected)
+                        .opacity(hasSelection && !isSelected ? 0.25 : 1.0)
+                        .scaleEffect(hasSelection && !isSelected ? 0.7 : 1.0)
+                        .animation(.easeInOut(duration: 0.25), value: hasSelection)
                         .onTapGesture {
-                            selectPOI(poi)
+                            if isSelected {
+                                clearDetourRoute()
+                            } else {
+                                selectPOI(poi)
+                            }
                         }
                         .accessibilityLabel("\(poi.name), \(poi.detourFormatted) detour")
                 }
