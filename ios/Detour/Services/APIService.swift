@@ -17,11 +17,7 @@ enum APIError: LocalizedError {
 }
 
 struct APIService {
-    #if DEBUG
-    static let baseURL = "http://localhost:3000"
-    #else
-    static let baseURL = "https://detour-backend.vercel.app"
-    #endif
+    static let baseURL = "https://backend-navy-iota.vercel.app"
 
     static func search(
         origin: (lat: Double, lng: Double),
