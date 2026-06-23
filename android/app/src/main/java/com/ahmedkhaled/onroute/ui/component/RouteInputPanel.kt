@@ -132,6 +132,15 @@ fun RouteInputPanel(
                 }
             }
 
+            if (viewModel.travelMode != TravelMode.DRIVE) {
+                Text(
+                    "Places shown along driving route",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
             // Suggestions
             if (activeSuggestions.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(4.dp))

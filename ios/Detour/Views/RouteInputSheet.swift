@@ -40,6 +40,13 @@ struct RouteInputSheet: View {
                 suggestionsList
             }
 
+            if viewModel.travelMode != .drive {
+                Text("Places shown along driving route")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 4)
+            }
+
             searchButton
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
