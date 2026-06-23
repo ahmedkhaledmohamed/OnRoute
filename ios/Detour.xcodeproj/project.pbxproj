@@ -13,6 +13,7 @@
 		6AB25AD0A9491C75902E754A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E150B83C6F7E7F04A52B6 /* ContentView.swift */; };
 		7E8F09B7A11FDFB5EBC27072 /* RouteInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84E35D42657E57843972001 /* RouteInputSheet.swift */; };
 		81010D2B957C94D45C92BAF3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB5686AC153B430D7432DCC1 /* Assets.xcassets */; };
+		949DB6D0152C407A94781220 /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71C1B6E9A43FD96AF5A12EA9 /* FiltersView.swift */; };
 		970647272864B6E7E04E285C /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16729255A438961AA638BD91 /* LocationManager.swift */; };
 		A7D1D5B9A395AF542F0369B0 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CDED49EE5D40E55804F057D /* APIService.swift */; };
 		BC9B6EF21947F116D988F333 /* DetourApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 457751B969B38BD06C2487E9 /* DetourApp.swift */; };
@@ -27,6 +28,7 @@
 		4B18C6839AF676782FE9B9E7 /* RouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteViewModel.swift; sourceTree = "<group>"; };
 		518029481AD32340074FA2DB /* POIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIResult.swift; sourceTree = "<group>"; };
 		641E150B83C6F7E7F04A52B6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		71C1B6E9A43FD96AF5A12EA9 /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
 		8CDED49EE5D40E55804F057D /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		CB5686AC153B430D7432DCC1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E84E35D42657E57843972001 /* RouteInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteInputSheet.swift; sourceTree = "<group>"; };
@@ -54,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				641E150B83C6F7E7F04A52B6 /* ContentView.swift */,
+				71C1B6E9A43FD96AF5A12EA9 /* FiltersView.swift */,
 				47695EC4C971D4435926BB18 /* POIAnnotationView.swift */,
 				2803F3CE2962AA35F9D26BC4 /* POIResultRow.swift */,
 				E84E35D42657E57843972001 /* RouteInputSheet.swift */,
@@ -172,6 +175,7 @@
 				A7D1D5B9A395AF542F0369B0 /* APIService.swift in Sources */,
 				6AB25AD0A9491C75902E754A /* ContentView.swift in Sources */,
 				BC9B6EF21947F116D988F333 /* DetourApp.swift in Sources */,
+				949DB6D0152C407A94781220 /* FiltersView.swift in Sources */,
 				970647272864B6E7E04E285C /* LocationManager.swift in Sources */,
 				60608E991569DD9413D2DBA8 /* POIAnnotationView.swift in Sources */,
 				69F45D18F798DA61626C5BDA /* POIResult.swift in Sources */,

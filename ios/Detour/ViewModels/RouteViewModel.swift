@@ -20,8 +20,52 @@ final class RouteViewModel {
     var poiResults: [POIResult] = []
     var selectedPOI: POIResult?
     var searchQuery = "coffee"
+    var maxDetourMinutes: Double = 15
+    var openNowOnly = true
+    var selectedCategory: Category?
     var isLoading = false
     var errorMessage: String?
+
+    var filteredResults: [POIResult] {
+        poiResults.filter { poi in
+            let withinDetour = poi.detourSeconds <= Int(maxDetourMinutes) * 60
+            let openFilter = !openNowOnly || poi.isOpenNow
+            return withinDetour && openFilter
+        }
+    }
+
+    enum Category: String, CaseIterable, Identifiable {
+        case coffee = "Coffee"
+        case food = "Food"
+        case gas = "Gas"
+        case grocery = "Grocery"
+        case pharmacy = "Pharmacy"
+        case evCharging = "EV Charging"
+
+        var id: String { rawValue }
+
+        var icon: String {
+            switch self {
+            case .coffee: return "cup.and.saucer.fill"
+            case .food: return "fork.knife"
+            case .gas: return "fuelpump.fill"
+            case .grocery: return "cart.fill"
+            case .pharmacy: return "cross.case.fill"
+            case .evCharging: return "bolt.car.fill"
+            }
+        }
+
+        var query: String {
+            switch self {
+            case .coffee: return "coffee"
+            case .food: return "restaurant"
+            case .gas: return "gas station"
+            case .grocery: return "grocery store"
+            case .pharmacy: return "pharmacy"
+            case .evCharging: return "EV charging station"
+            }
+        }
+    }
 
     var routeDurationFormatted: String? {
         guard let route else { return nil }
@@ -108,36 +152,44 @@ final class RouteViewModel {
         originSuggestions = []
     }
 
+    func selectCategory(_ category: Category) {
+        selectedCategory = category
+        searchQuery = category.query
+        if isSearchReady {
+            search()
+        }
+    }
+
     func search() {
         guard let origin = originCoordinate, let destination = destinationCoordinate else { return }
         isLoading = true
         errorMessage = nil
-        route = nil
         poiResults = []
         selectedPOI = nil
 
         Task {
             do {
-                // Local route for polyline rendering
-                let dirRequest = MKDirections.Request()
-                dirRequest.source = MKMapItem(placemark: MKPlacemark(coordinate: origin))
-                dirRequest.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
-                dirRequest.transportType = .automobile
+                if route == nil {
+                    let dirRequest = MKDirections.Request()
+                    dirRequest.source = MKMapItem(placemark: MKPlacemark(coordinate: origin))
+                    dirRequest.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
+                    dirRequest.transportType = .automobile
 
-                async let directionsTask = MKDirections(request: dirRequest).calculate()
+                    let directionsResponse = try await MKDirections(request: dirRequest).calculate()
+                    await MainActor.run {
+                        self.route = directionsResponse.routes.first
+                    }
+                }
 
-                // Backend search for POIs along route
-                async let searchTask = APIService.search(
+                let searchResponse = try await APIService.search(
                     origin: (origin.latitude, origin.longitude),
                     destination: (destination.latitude, destination.longitude),
-                    query: searchQuery
+                    query: searchQuery,
+                    maxDetourMinutes: Int(maxDetourMinutes),
+                    openNow: openNowOnly
                 )
 
-                let directionsResponse = try await directionsTask
-                let searchResponse = try await searchTask
-
                 await MainActor.run {
-                    self.route = directionsResponse.routes.first
                     self.poiResults = searchResponse.results
                     self.isLoading = false
                 }
