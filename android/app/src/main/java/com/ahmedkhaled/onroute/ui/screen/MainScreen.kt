@@ -3,6 +3,7 @@ package com.ahmedkhaled.onroute.ui.screen
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
 
@@ -40,6 +42,19 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
     }
     val scope = rememberCoroutineScope()
     val sheetState = rememberBottomSheetScaffoldState()
+    val isDark = isSystemInDarkTheme()
+
+    val mapProperties = remember(isDark) {
+        MapProperties(
+            mapStyleOptions = if (isDark) {
+                MapStyleOptions(DARK_MAP_STYLE)
+            } else null,
+            isMyLocationEnabled = false
+        )
+    }
+
+    // Snap to user location on launch
+    var hasRequestedLocation by remember { mutableStateOf(false) }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -47,9 +62,29 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
         if (granted) {
             scope.launch {
                 viewModel.locationService.getCurrentLocation()?.let { latLng ->
+                    if (!hasRequestedLocation) {
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.newLatLngZoom(latLng, 13f)
+                        )
+                        hasRequestedLocation = true
+                    }
                     viewModel.useCurrentLocation(latLng)
                 }
             }
+        }
+    }
+
+    // Request location on first launch
+    LaunchedEffect(Unit) {
+        if (viewModel.locationService.hasLocationPermission()) {
+            viewModel.locationService.getCurrentLocation()?.let { latLng ->
+                cameraPositionState.animate(
+                    CameraUpdateFactory.newLatLngZoom(latLng, 13f)
+                )
+                hasRequestedLocation = true
+            }
+        } else {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 
@@ -85,6 +120,7 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
+                properties = mapProperties,
                 uiSettings = MapUiSettings(zoomControlsEnabled = false)
             ) {
                 val hasDetour = viewModel.detourRoutePoints.isNotEmpty()
@@ -349,3 +385,24 @@ private fun ResultsSheet(viewModel: RouteViewModel) {
         }
     }
 }
+
+private const val DARK_MAP_STYLE = """[
+  {"elementType":"geometry","stylers":[{"color":"#242f3e"}]},
+  {"elementType":"labels.text.fill","stylers":[{"color":"#746855"}]},
+  {"elementType":"labels.text.stroke","stylers":[{"color":"#242f3e"}]},
+  {"featureType":"administrative.locality","elementType":"labels.text.fill","stylers":[{"color":"#d59563"}]},
+  {"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#d59563"}]},
+  {"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#263c3f"}]},
+  {"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#6b9a76"}]},
+  {"featureType":"road","elementType":"geometry","stylers":[{"color":"#38414e"}]},
+  {"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#212a37"}]},
+  {"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#9ca5b3"}]},
+  {"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#746855"}]},
+  {"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#1f2835"}]},
+  {"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#f3d19c"}]},
+  {"featureType":"transit","elementType":"geometry","stylers":[{"color":"#2f3948"}]},
+  {"featureType":"transit.station","elementType":"labels.text.fill","stylers":[{"color":"#d59563"}]},
+  {"featureType":"water","elementType":"geometry","stylers":[{"color":"#17263c"}]},
+  {"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#515c6d"}]},
+  {"featureType":"water","elementType":"labels.text.stroke","stylers":[{"color":"#17263c"}]}
+]"""
