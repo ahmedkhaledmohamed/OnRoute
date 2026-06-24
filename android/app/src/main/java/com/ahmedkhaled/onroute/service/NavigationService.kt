@@ -15,12 +15,18 @@ object NavigationService {
         context: Context,
         poi: POIResult,
         originName: String?,
-        destinationName: String?
+        destinationName: String?,
+        travelMode: String = "DRIVE"
     ) {
         val origin = URLEncoder.encode(originName ?: "", "UTF-8")
         val stop = URLEncoder.encode(poi.address, "UTF-8")
         val dest = URLEncoder.encode(destinationName ?: "", "UTF-8")
-        val url = "https://www.google.com/maps/dir/$origin/$stop/$dest"
+        val mode = when (travelMode) {
+            "WALK" -> "walking"
+            "BICYCLE" -> "bicycling"
+            else -> "driving"
+        }
+        val url = "https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$dest&waypoints=$stop&travelmode=$mode"
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         context.startActivity(intent)
     }

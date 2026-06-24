@@ -162,7 +162,7 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                Icon(Icons.Default.DirectionsCar, null, modifier = Modifier.size(14.dp))
+                                Icon(viewModel.travelMode.icon, null, modifier = Modifier.size(14.dp))
                                 Text(
                                     "${viewModel.routeDurationFormatted} · ${viewModel.routeDistanceFormatted}",
                                     fontSize = 14.sp
@@ -266,7 +266,8 @@ private fun ResultsSheet(viewModel: RouteViewModel) {
                             NavigationService.openGoogleMaps(
                                 context, poi,
                                 viewModel.originName,
-                                viewModel.destinationName
+                                viewModel.destinationName,
+                                viewModel.travelMode.apiValue
                             )
                         }
                     },
@@ -337,7 +338,8 @@ private fun ResultsSheet(viewModel: RouteViewModel) {
                             NavigationService.openGoogleMaps(
                                 context, poi,
                                 viewModel.originName,
-                                viewModel.destinationName
+                                viewModel.destinationName,
+                                viewModel.travelMode.apiValue
                             )
                         }
                     )

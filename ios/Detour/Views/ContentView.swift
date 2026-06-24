@@ -84,6 +84,7 @@ struct ContentView: View {
                             originName: viewModel.originName,
                             destination: viewModel.destinationCoordinate,
                             destinationName: viewModel.destinationName,
+                            travelMode: viewModel.travelMode.rawValue,
                             using: app
                         )
                     }
@@ -380,6 +381,7 @@ struct ContentView: View {
                 originName: viewModel.originName,
                 destination: viewModel.destinationCoordinate,
                 destinationName: viewModel.destinationName,
+                travelMode: viewModel.travelMode.rawValue,
                 using: available[0]
             )
         } else {
@@ -392,7 +394,7 @@ struct ContentView: View {
 
     private var tripInfoPill: some View {
         HStack(spacing: 6) {
-            Image(systemName: "car.fill")
+            Image(systemName: viewModel.travelMode.icon)
                 .font(.system(size: 12))
             if let duration = viewModel.routeDurationFormatted,
                let distance = viewModel.routeDistanceFormatted {
