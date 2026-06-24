@@ -46,7 +46,7 @@
 
 ### Infrastructure
 - Landing page: https://onroute-landing.vercel.app
-- iOS TestFlight: https://testflight.apple.com/join/rSk4Az7M
+- iOS TestFlight: https://testflight.apple.com/join/jp77yU4e
 - Android Firebase: https://console.firebase.google.com/u/0/project/onroute-akm-2026/appdistribution/app/android:com.ahmedkhaled.onroute/releases/7j3c5pr905a70
 
 ---
