@@ -38,6 +38,10 @@ node_modules/
 .env
 .env.local
 
+# API keys
+ios/keys/
+AuthKey_*.p8
+
 # IDE
 .idea/
 .vscode/
