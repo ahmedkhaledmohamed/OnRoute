@@ -182,8 +182,12 @@ struct RouteInputSheet: View {
         HStack(spacing: 0) {
             ForEach(RouteViewModel.TravelMode.allCases) { mode in
                 Button {
+                    guard viewModel.travelMode != mode else { return }
                     viewModel.travelMode = mode
                     viewModel.route = nil
+                    if viewModel.isSearchReady {
+                        onSearch()
+                    }
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: mode.icon)

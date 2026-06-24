@@ -122,7 +122,12 @@ fun RouteInputPanel(
                         val selected = viewModel.travelMode == mode
                         FilterChip(
                             selected = selected,
-                            onClick = { viewModel.travelMode = mode },
+                            onClick = {
+                                if (viewModel.travelMode != mode) {
+                                    viewModel.travelMode = mode
+                                    if (viewModel.isSearchReady) viewModel.search()
+                                }
+                            },
                             label = { Text(mode.label, fontSize = 12.sp) },
                             leadingIcon = {
                                 Icon(mode.icon, contentDescription = "${mode.label} mode", modifier = Modifier.size(16.dp))
