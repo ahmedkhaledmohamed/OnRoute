@@ -111,36 +111,6 @@ fun RouteInputPanel(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Travel mode picker
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                TravelMode.entries.forEach { mode ->
-                    val selected = viewModel.travelMode == mode
-                    FilterChip(
-                        selected = selected,
-                        onClick = { viewModel.travelMode = mode },
-                        label = { Text(mode.label, fontSize = 12.sp) },
-                        leadingIcon = {
-                            Icon(mode.icon, null, modifier = Modifier.size(16.dp))
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            if (viewModel.travelMode != TravelMode.DRIVE) {
-                Text(
-                    "Places shown along driving route",
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-
             // Suggestions
             if (activeSuggestions.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(4.dp))
