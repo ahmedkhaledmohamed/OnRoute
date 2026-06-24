@@ -36,6 +36,12 @@ struct RouteInputSheet: View {
                 suggestionsList
             }
 
+            if viewModel.isSearchReady {
+                travelModePicker
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+            }
+
             searchButton
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
@@ -170,6 +176,36 @@ struct RouteInputSheet: View {
             }
         }
         .frame(maxHeight: 200)
+    }
+
+    private var travelModePicker: some View {
+        HStack(spacing: 0) {
+            ForEach(RouteViewModel.TravelMode.allCases) { mode in
+                Button {
+                    viewModel.travelMode = mode
+                    viewModel.route = nil
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: mode.icon)
+                            .font(.system(size: 12))
+                        Text(mode.label)
+                            .font(.caption.weight(.medium))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(
+                        viewModel.travelMode == mode
+                            ? Color.accentColor.opacity(0.15)
+                            : Color.clear,
+                        in: RoundedRectangle(cornerRadius: 8)
+                    )
+                    .foregroundStyle(viewModel.travelMode == mode ? Color.accentColor : .secondary)
+                }
+                .accessibilityLabel("\(mode.label) mode")
+                .accessibilityAddTraits(viewModel.travelMode == mode ? .isSelected : [])
+            }
+        }
+        .background(.background, in: RoundedRectangle(cornerRadius: 10))
     }
 
     private var searchButton: some View {

@@ -111,6 +111,28 @@ fun RouteInputPanel(
                 }
             }
 
+            // Travel mode picker — only when both addresses are filled
+            if (viewModel.isSearchReady) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    TravelMode.entries.forEach { mode ->
+                        val selected = viewModel.travelMode == mode
+                        FilterChip(
+                            selected = selected,
+                            onClick = { viewModel.travelMode = mode },
+                            label = { Text(mode.label, fontSize = 12.sp) },
+                            leadingIcon = {
+                                Icon(mode.icon, contentDescription = "${mode.label} mode", modifier = Modifier.size(16.dp))
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+
             // Suggestions
             if (activeSuggestions.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(4.dp))

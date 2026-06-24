@@ -159,6 +159,74 @@ async function computeRoute(
   };
 }
 
+async function computeRouteVia(
+  origin: { lat: number; lng: number },
+  destination: { lat: number; lng: number },
+  poi: { lat: number; lng: number },
+  travelMode: string
+): Promise<number | null> {
+  try {
+    const response = await fetch(
+      "https://routes.googleapis.com/directions/v2:computeRoutes",
+      {
+        method: "POST",
+        signal: AbortSignal.timeout(8000),
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": API_KEY!,
+          "X-Goog-FieldMask": "routes.duration",
+        },
+        body: JSON.stringify({
+          origin: {
+            location: { latLng: { latitude: origin.lat, longitude: origin.lng } },
+          },
+          destination: {
+            location: { latLng: { latitude: destination.lat, longitude: destination.lng } },
+          },
+          intermediates: [
+            {
+              location: { latLng: { latitude: poi.lat, longitude: poi.lng } },
+            },
+          ],
+          travelMode,
+        }),
+      }
+    );
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    const route = data.routes?.[0];
+    if (!route) return null;
+    return parseDuration(route.duration);
+  } catch {
+    return null;
+  }
+}
+
+async function recalculateDetours(
+  pois: POIResult[],
+  origin: { lat: number; lng: number },
+  destination: { lat: number; lng: number },
+  baselineDurationSeconds: number,
+  travelMode: string
+): Promise<POIResult[]> {
+  const results = await Promise.all(
+    pois.map(async (poi) => {
+      const viaDuration = await computeRouteVia(
+        origin, destination,
+        { lat: poi.lat, lng: poi.lng },
+        travelMode
+      );
+      if (viaDuration !== null) {
+        const detour = Math.max(0, viaDuration - baselineDurationSeconds);
+        return { ...poi, detourSeconds: detour, detourFormatted: formatDetour(detour) };
+      }
+      return poi;
+    })
+  );
+  return results.sort((a, b) => a.detourSeconds - b.detourSeconds);
+}
+
 async function searchAlongRoute(
   encodedPolyline: string,
   query: string,
@@ -347,15 +415,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       "DRIVE"
     );
 
-    for (const result of results) {
-      if (result.detourSeconds > 0) {
-        const actualDetour = result.detourSeconds - route.durationSeconds;
-        result.detourSeconds = Math.max(0, actualDetour);
-        result.detourFormatted = formatDetour(result.detourSeconds);
+    if (travelMode === "WALK" || travelMode === "BICYCLE") {
+      // Recalculate detour times using actual walk/bike routing
+      results = await recalculateDetours(
+        results, body.origin, body.destination,
+        route.durationSeconds, travelMode
+      );
+    } else {
+      // DRIVE: use SAR routing summaries directly
+      for (const result of results) {
+        if (result.detourSeconds > 0) {
+          const actualDetour = result.detourSeconds - route.durationSeconds;
+          result.detourSeconds = Math.max(0, actualDetour);
+          result.detourFormatted = formatDetour(result.detourSeconds);
+        }
       }
+      results.sort((a, b) => a.detourSeconds - b.detourSeconds);
     }
-
-    results.sort((a, b) => a.detourSeconds - b.detourSeconds);
 
     const fullResponse: SearchResponse = { results, route };
 
