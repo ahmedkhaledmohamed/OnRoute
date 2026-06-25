@@ -27,7 +27,7 @@ targets:
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: false
         INFOPLIST_KEY_CFBundleDisplayName: "OnRoute"
         INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "OnRoute uses your location to find places along your route"
-        DEVELOPMENT_TEAM: ""
+        DEVELOPMENT_TEAM: "VMXQN9K3P2"
     info:
       path: Detour/Info.plist
       properties:
