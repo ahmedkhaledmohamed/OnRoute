@@ -4,7 +4,7 @@ Find places along your route, ranked by how little time they add.
 
 Enter origin, destination, and what you're looking for — coffee, dinner pickup, gas — and see options sorted by "+X minutes" of detour.
 
-**[Landing Page](https://onroute-landing.vercel.app)** · **[iOS TestFlight](https://testflight.apple.com/join/jp77yU4e)** · **[Android Beta](https://appdistribution.firebase.dev/i/47c1cf7b6ee71c85)**
+**[Landing Page](https://onroute-landing.vercel.app)** · **[iOS Beta](https://appdistribution.firebase.dev/i/4585dac30b5a8ccd)** · **[Android Beta](https://appdistribution.firebase.dev/i/47c1cf7b6ee71c85)**
 
 <p align="center">
   <img src="docs/screenshot-ios.png" alt="OnRoute iOS" width="250">
@@ -40,7 +40,7 @@ No existing app makes detour time the primary ranking across all POI categories.
 | **Backend** | Vercel Functions (TypeScript) |
 | **Routing** | Google Routes API |
 | **Places** | Google Places Text Search (Search Along Route) |
-| **iOS Beta** | TestFlight |
+| **iOS** | SwiftUI + MapKit |
 | **Android Beta** | Firebase App Distribution |
 
 All routing/POI logic lives server-side. Native apps are thin clients that render routes and markers. Backend includes rate limiting (20 req/min per IP), CORS restriction, input validation, and in-memory caching (1hr TTL).
@@ -61,7 +61,7 @@ docs/                Research, competitive analysis, product strategy
 |---|---|
 | Backend API | https://backend-navy-iota.vercel.app |
 | Landing Page | https://onroute-landing.vercel.app |
-| iOS TestFlight | https://testflight.apple.com/join/jp77yU4e |
+| iOS Beta | https://appdistribution.firebase.dev/i/4585dac30b5a8ccd |
 | Android Firebase | https://appdistribution.firebase.dev/i/47c1cf7b6ee71c85 |
 | Firebase Console | https://console.firebase.google.com/project/onroute-akm-2026 |
 
