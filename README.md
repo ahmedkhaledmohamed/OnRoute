@@ -4,7 +4,7 @@ Find places along your route, ranked by how little time they add.
 
 Enter origin, destination, and what you're looking for — coffee, dinner pickup, gas — and see options sorted by "+X minutes" of detour.
 
-**[Landing Page](https://onroute-landing.vercel.app)** · **[iOS Beta](https://appdistribution.firebase.dev/i/4585dac30b5a8ccd)** · **[Android Beta](https://appdistribution.firebase.dev/i/47c1cf7b6ee71c85)**
+**[Landing Page](https://onroute-landing.vercel.app)** · **[iOS TestFlight](https://testflight.apple.com/join/jp77yU4e)** · **[iOS Firebase](https://appdistribution.firebase.dev/i/4585dac30b5a8ccd)** · **[Android](https://appdistribution.firebase.dev/i/47c1cf7b6ee71c85)**
 
 <p align="center">
   <img src="docs/screenshot-ios.png" alt="OnRoute iOS" width="250">
@@ -61,7 +61,8 @@ docs/                Research, competitive analysis, product strategy
 |---|---|
 | Backend API | https://backend-navy-iota.vercel.app |
 | Landing Page | https://onroute-landing.vercel.app |
-| iOS Beta | https://appdistribution.firebase.dev/i/4585dac30b5a8ccd |
+| iOS TestFlight | https://testflight.apple.com/join/jp77yU4e |
+| iOS Firebase | https://appdistribution.firebase.dev/i/4585dac30b5a8ccd |
 | Android Firebase | https://appdistribution.firebase.dev/i/47c1cf7b6ee71c85 |
 | Firebase Console | https://console.firebase.google.com/project/onroute-akm-2026 |
 
