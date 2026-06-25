@@ -3,6 +3,7 @@ package com.ahmedkhaled.onroute.ui.screen
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -101,6 +102,12 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
 
     LaunchedEffect(viewModel.poiResults) {
         if (viewModel.poiResults.isNotEmpty()) {
+            sheetState.bottomSheetState.expand()
+        }
+    }
+
+    LaunchedEffect(viewModel.selectedPOI) {
+        if (viewModel.selectedPOI != null && sheetState.bottomSheetState.hasExpandedState) {
             sheetState.bottomSheetState.expand()
         }
     }
@@ -284,44 +291,47 @@ private fun ResultsSheet(viewModel: RouteViewModel) {
     val context = LocalContext.current
     Column(modifier = Modifier.fillMaxWidth()) {
         // Selected POI header with Open in Maps + clear
-        if (viewModel.selectedPOI != null) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    viewModel.selectedPOI?.name ?: "",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1
-                )
-                FilledTonalButton(
-                    onClick = {
-                        viewModel.selectedPOI?.let { poi ->
-                            NavigationService.openGoogleMaps(
-                                context, poi,
-                                viewModel.originName,
-                                viewModel.destinationName,
-                                viewModel.travelMode.apiValue
-                            )
-                        }
-                    },
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+        val selectedPoi = viewModel.selectedPOI
+        AnimatedVisibility(visible = selectedPoi != null) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Open in Maps", fontSize = 12.sp)
+                    Text(
+                        selectedPoi?.name ?: "",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1
+                    )
+                    FilledTonalButton(
+                        onClick = {
+                            selectedPoi?.let { poi ->
+                                NavigationService.openGoogleMaps(
+                                    context, poi,
+                                    viewModel.originName,
+                                    viewModel.destinationName,
+                                    viewModel.travelMode.apiValue
+                                )
+                            }
+                        },
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        Text("Open in Maps", fontSize = 12.sp)
+                    }
+                    IconButton(
+                        onClick = { viewModel.clearDetour() },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(Icons.Default.Close, "Clear", modifier = Modifier.size(18.dp))
+                    }
                 }
-                IconButton(
-                    onClick = { viewModel.clearDetour() },
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(Icons.Default.Close, "Clear", modifier = Modifier.size(18.dp))
-                }
+                HorizontalDivider()
             }
-            HorizontalDivider()
         }
 
         Row(
