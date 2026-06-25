@@ -231,6 +231,9 @@ final class RouteViewModel {
 
                 await MainActor.run {
                     self.poiResults = searchResponse.results
+                    if searchResponse.results.isEmpty {
+                        self.errorMessage = "No places found along this route. Try a different category."
+                    }
                     self.isLoading = false
                 }
             } catch {
