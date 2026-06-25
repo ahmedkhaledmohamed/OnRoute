@@ -231,6 +231,7 @@ async function searchAlongRoute(
   encodedPolyline: string,
   query: string,
   origin: { lat: number; lng: number },
+  destination: { lat: number; lng: number },
   openNow: boolean,
   travelMode: string = "DRIVE"
 ): Promise<POIResult[]> {
@@ -246,10 +247,26 @@ async function searchAlongRoute(
     "places.photos",
   ].join(",");
 
+  // Bias results toward the route area
+  const midLat = (origin.lat + destination.lat) / 2;
+  const midLng = (origin.lng + destination.lng) / 2;
+  const distKm = Math.sqrt(
+    Math.pow((origin.lat - destination.lat) * 111, 2) +
+    Math.pow((origin.lng - destination.lng) * 111 * Math.cos(midLat * Math.PI / 180), 2)
+  );
+  // Radius = half the route distance + 2km buffer, min 3km, max 30km
+  const radiusMeters = Math.min(30000, Math.max(3000, (distKm / 2 + 2) * 1000));
+
   const body: Record<string, unknown> = {
     textQuery: query,
     searchAlongRouteParameters: {
       polyline: { encodedPolyline },
+    },
+    locationBias: {
+      circle: {
+        center: { latitude: midLat, longitude: midLng },
+        radius: radiusMeters,
+      },
     },
     routingParameters: {
       origin: {
@@ -411,6 +428,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       route.encodedPolyline,
       body.query,
       body.origin,
+      body.destination,
       openNow,
       "DRIVE"
     );
