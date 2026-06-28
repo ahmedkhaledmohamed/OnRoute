@@ -10,6 +10,8 @@ struct ContentView: View {
     @State private var detourLeg1: MKRoute?
     @State private var detourLeg2: MKRoute?
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var savedRoutes: [SavedRoute] = []
+    @State private var showSavePrompt = false
 
     private var hasDetour: Bool { detourLeg1 != nil }
 
@@ -59,11 +61,18 @@ struct ContentView: View {
                 showResults = true
             }
         }
+        .onAppear { savedRoutes = SavedRoutesStore.shared.load() }
         .sheet(isPresented: $showResults) {
             resultsSheet
                 .presentationDetents([.medium, .large, .fraction(0.35)])
                 .presentationDragIndicator(.visible)
                 .presentationBackgroundInteraction(.enabled)
+        }
+        .alert("Save Route", isPresented: $showSavePrompt) {
+            TextField("Route name", text: .constant(""))
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Save this route for quick access?")
         }
         .confirmationDialog(
             "Navigate to \(navigatingPOI?.name ?? "")",
@@ -158,6 +167,19 @@ struct ContentView: View {
 
     private var bottomPanel: some View {
         VStack(spacing: 8) {
+            if viewModel.route == nil && !savedRoutes.isEmpty {
+                SavedRoutesView(
+                    routes: savedRoutes,
+                    onSelect: { route in
+                        viewModel.loadSavedRoute(route)
+                    },
+                    onDelete: { route in
+                        SavedRoutesStore.shared.delete(route)
+                        savedRoutes = SavedRoutesStore.shared.load()
+                    }
+                )
+            }
+
             if viewModel.route != nil {
                 HStack(spacing: 8) {
                     tripInfoPill
@@ -291,11 +313,24 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        sendFeedback()
-                    } label: {
-                        Image(systemName: "envelope")
-                            .font(.system(size: 14))
+                    HStack(spacing: 12) {
+                        Button {
+                            sendFeedback()
+                        } label: {
+                            Image(systemName: "envelope")
+                                .font(.system(size: 14))
+                        }
+                        if viewModel.isSearchReady {
+                            Button {
+                                let name = "\(viewModel.originName ?? "A") → \(viewModel.destinationName ?? "B")"
+                                _ = viewModel.saveCurrentRoute(name: name)
+                                savedRoutes = SavedRoutesStore.shared.load()
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            } label: {
+                                Image(systemName: "bookmark")
+                                    .font(.system(size: 14))
+                            }
+                        }
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {

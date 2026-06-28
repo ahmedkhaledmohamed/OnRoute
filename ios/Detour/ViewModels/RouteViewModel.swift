@@ -273,6 +273,43 @@ final class RouteViewModel {
         swap(&originName, &destinationName)
     }
 
+    func loadSavedRoute(_ saved: SavedRoute) {
+        originQuery = saved.originName
+        originCoordinate = saved.originCoordinate
+        originName = saved.originName
+        destinationQuery = saved.destinationName
+        destinationCoordinate = saved.destinationCoordinate
+        destinationName = saved.destinationName
+        originSuggestions = []
+        destinationSuggestions = []
+        route = nil
+
+        if let cat = Category.allCases.first(where: { $0.query == saved.defaultCategory }) {
+            selectedCategory = cat
+            searchQuery = cat.query
+        }
+
+        search()
+    }
+
+    func saveCurrentRoute(name: String) -> SavedRoute? {
+        guard let origin = originCoordinate,
+              let destination = destinationCoordinate,
+              let oName = originName,
+              let dName = destinationName else { return nil }
+
+        let route = SavedRoute.create(
+            name: name,
+            origin: origin,
+            originName: oName,
+            destination: destination,
+            destinationName: dName,
+            defaultCategory: searchQuery
+        )
+        SavedRoutesStore.shared.save(route)
+        return route
+    }
+
     private func isAheadOnRoute(_ poi: POIResult) -> Bool {
         guard let polyline = route?.polyline else { return true }
         let pointCount = polyline.pointCount

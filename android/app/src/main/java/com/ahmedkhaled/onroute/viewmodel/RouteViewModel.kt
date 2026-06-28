@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahmedkhaled.onroute.model.*
+import com.ahmedkhaled.onroute.model.SavedRoute
+import com.ahmedkhaled.onroute.model.SavedRoutesStore
 import com.ahmedkhaled.onroute.service.AnalyticsService
 import com.ahmedkhaled.onroute.service.ApiService
 import com.ahmedkhaled.onroute.service.DirectionsService
@@ -77,6 +79,14 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
     val locationService = LocationService(application)
     private val apiService = ApiService.create()
     private val directionsService = DirectionsService()
+    val savedRoutesStore = SavedRoutesStore(application)
+
+    var savedRoutes by mutableStateOf<List<SavedRoute>>(emptyList())
+        private set
+
+    init {
+        savedRoutes = savedRoutesStore.load()
+    }
 
     private var originDebounceJob: Job? = null
     private var destinationDebounceJob: Job? = null
@@ -209,6 +219,50 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
         destinationQuery = tmpQuery
         destinationLatLng = tmpLatLng
         destinationName = tmpName
+    }
+
+    fun loadSavedRoute(saved: SavedRoute) {
+        originQuery = saved.originName
+        originLatLng = saved.originLatLng
+        originName = saved.originName
+        destinationQuery = saved.destinationName
+        destinationLatLng = saved.destinationLatLng
+        destinationName = saved.destinationName
+        originSuggestions = emptyList()
+        destinationSuggestions = emptyList()
+        routePoints = emptyList()
+
+        val cat = Category.entries.firstOrNull { it.query == saved.defaultCategory }
+        if (cat != null) {
+            selectedCategory = cat
+            searchQuery = cat.query
+        }
+
+        search()
+    }
+
+    fun saveCurrentRoute(name: String) {
+        val origin = originLatLng ?: return
+        val dest = destinationLatLng ?: return
+        val route = SavedRoute(
+            id = java.util.UUID.randomUUID().toString(),
+            name = name,
+            originLat = origin.latitude,
+            originLng = origin.longitude,
+            originName = originName ?: "Origin",
+            destinationLat = dest.latitude,
+            destinationLng = dest.longitude,
+            destinationName = destinationName ?: "Destination",
+            defaultCategory = searchQuery,
+            createdAt = System.currentTimeMillis()
+        )
+        savedRoutesStore.save(route)
+        savedRoutes = savedRoutesStore.load()
+    }
+
+    fun deleteSavedRoute(route: SavedRoute) {
+        savedRoutesStore.delete(route)
+        savedRoutes = savedRoutesStore.load()
     }
 
     fun selectPOI(poi: POIResult) {
