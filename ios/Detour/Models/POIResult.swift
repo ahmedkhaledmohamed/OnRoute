@@ -12,6 +12,9 @@ struct POIResult: Identifiable, Codable, Hashable {
     let rating: Double
     let userRatingCount: Int
     let isOpenNow: Bool
+    let priceLevel: String?
+    let phoneNumber: String?
+    let todayHours: String?
     let types: [String]
     let photoReference: String?
 
@@ -19,6 +22,16 @@ struct POIResult: Identifiable, Codable, Hashable {
 
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: lat, longitude: lng)
+    }
+
+    var priceLevelDisplay: String? {
+        switch priceLevel {
+        case "PRICE_LEVEL_INEXPENSIVE": return "$"
+        case "PRICE_LEVEL_MODERATE": return "$$"
+        case "PRICE_LEVEL_EXPENSIVE": return "$$$"
+        case "PRICE_LEVEL_VERY_EXPENSIVE": return "$$$$"
+        default: return nil
+        }
     }
 
     var detourColor: DetourColor {

@@ -16,10 +16,21 @@ data class POIResult(
     val rating: Double,
     val userRatingCount: Int,
     val isOpenNow: Boolean,
+    val priceLevel: String? = null,
+    val phoneNumber: String? = null,
+    val todayHours: String? = null,
     val types: List<String>,
     val photoReference: String? = null
 ) {
     val latLng: LatLng get() = LatLng(lat, lng)
+
+    val priceLevelDisplay: String? get() = when (priceLevel) {
+        "PRICE_LEVEL_INEXPENSIVE" -> "$"
+        "PRICE_LEVEL_MODERATE" -> "$$"
+        "PRICE_LEVEL_EXPENSIVE" -> "$$$"
+        "PRICE_LEVEL_VERY_EXPENSIVE" -> "$$$$"
+        else -> null
+    }
 
     val detourColor: Color
         get() {

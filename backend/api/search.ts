@@ -60,6 +60,9 @@ interface POIResult {
   rating: number;
   userRatingCount: number;
   isOpenNow: boolean;
+  priceLevel?: string;
+  phoneNumber?: string;
+  todayHours?: string;
   types: string[];
   photoReference?: string;
 }
@@ -243,6 +246,8 @@ async function searchAlongRoute(
     "places.rating",
     "places.userRatingCount",
     "places.currentOpeningHours",
+    "places.priceLevel",
+    "places.nationalPhoneNumber",
     "places.types",
     "places.photos",
   ].join(",");
@@ -318,7 +323,10 @@ async function searchAlongRoute(
     const location = place.location as { latitude: number; longitude: number } | undefined;
     const displayName = place.displayName as { text: string } | undefined;
     const photos = place.photos as Array<{ name: string }> | undefined;
-    const openingHours = place.currentOpeningHours as { openNow?: boolean } | undefined;
+    const openingHours = place.currentOpeningHours as {
+      openNow?: boolean;
+      weekdayDescriptions?: string[];
+    } | undefined;
 
     const detourMinutes = Math.round(detourSeconds / 60);
     const detourFormatted =
@@ -335,10 +343,21 @@ async function searchAlongRoute(
       rating: (place.rating as number) || 0,
       userRatingCount: (place.userRatingCount as number) || 0,
       isOpenNow: openingHours?.openNow ?? false,
+      priceLevel: (place.priceLevel as string) || undefined,
+      phoneNumber: (place.nationalPhoneNumber as string) || undefined,
+      todayHours: getTodayHours(openingHours?.weekdayDescriptions),
       types: (place.types as string[]) || [],
       photoReference: photos?.[0]?.name,
     };
   });
+}
+
+function getTodayHours(weekdayDescriptions?: string[]): string | undefined {
+  if (!weekdayDescriptions?.length) return undefined;
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const today = days[new Date().getUTCDay()];
+  const entry = weekdayDescriptions.find((d) => d.startsWith(today));
+  return entry?.replace(`${today}: `, "") || undefined;
 }
 
 function parseDuration(duration: unknown): number {

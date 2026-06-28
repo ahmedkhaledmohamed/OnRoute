@@ -109,6 +109,14 @@ fun POIResultRow(
                     fontWeight = FontWeight.Medium,
                     color = if (poi.isOpenNow) Color(0xFF4CAF50) else Color(0xFFF44336)
                 )
+
+                poi.priceLevelDisplay?.let {
+                    Text(it, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+
+                poi.todayHours?.let {
+                    Text(it, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                }
             }
         }
 

@@ -42,6 +42,19 @@ struct POIResultRow: View {
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(.red)
                     }
+
+                    if let price = poi.priceLevelDisplay {
+                        Text(price)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    if let hours = poi.todayHours {
+                        Text(hours)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
                 }
             }
 
