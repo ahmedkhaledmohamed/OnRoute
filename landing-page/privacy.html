@@ -15,52 +15,81 @@
         }
         h1 { font-size: 28px; margin-bottom: 8px; }
         h2 { font-size: 20px; margin-top: 32px; }
+        h3 { font-size: 16px; margin-top: 20px; }
         p, li { font-size: 15px; color: #444; }
         a { color: #008DA6; }
         .updated { font-size: 13px; color: #888; margin-bottom: 32px; }
+        table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+        th, td { text-align: left; padding: 8px 12px; border: 1px solid #e5e7eb; font-size: 14px; }
+        th { background: #f9fafb; font-weight: 600; }
     </style>
 </head>
 <body>
     <h1>Privacy Policy</h1>
-    <p class="updated">Last updated: June 24, 2026</p>
+    <p class="updated">Last updated: June 29, 2026</p>
 
-    <p>OnRoute ("we", "the app") is a free beta app that helps you find places along your driving, walking, or biking route. Your privacy matters to us. This policy explains what data we collect and how we use it.</p>
+    <p>OnRoute ("we", "the app") helps you find places along your route, ranked by detour time. This policy explains what data we collect, why, and how we handle it.</p>
 
-    <h2>What We Collect</h2>
-    <ul>
-        <li><strong>Search queries</strong> — origin, destination, and category (e.g., "coffee"). These are sent to our backend server to find places along your route.</li>
-        <li><strong>Location data</strong> — only when you tap "Current Location." We do not track your location in the background.</li>
-    </ul>
+    <h2>Data We Collect</h2>
+
+    <table>
+        <tr><th>Data</th><th>When</th><th>Purpose</th></tr>
+        <tr><td>Search queries (origin, destination, category)</td><td>Each search</td><td>Find places along your route</td></tr>
+        <tr><td>Location</td><td>When you tap "Current Location"</td><td>Set your starting point</td></tr>
+        <tr><td>Anonymous usage events</td><td>App use</td><td>Understand feature usage and retention</td></tr>
+        <tr><td>Crash reports</td><td>On app crashes</td><td>Fix bugs and improve stability</td></tr>
+        <tr><td>Email address</td><td>If you join the waitlist or sign up for updates</td><td>Product updates and launch notifications</td></tr>
+        <tr><td>Device type and OS version</td><td>With crash reports</td><td>Diagnose platform-specific issues</td></tr>
+    </table>
 
     <h2>What We Don't Collect</h2>
     <ul>
         <li>No account or login required</li>
-        <li>No personal information (name, email, phone)</li>
-        <li>No cookies or tracking pixels</li>
-        <li>No advertising identifiers</li>
+        <li>No advertising identifiers or ad tracking</li>
         <li>No background location tracking</li>
         <li>No data sold to third parties</li>
+        <li>No social media data or contacts</li>
     </ul>
+
+    <h2>Anonymous Analytics</h2>
+    <p>We use <a href="https://posthog.com/privacy">PostHog</a> to collect anonymous usage data. Each device is assigned a random identifier (not linked to your identity). We track events like searches performed, categories used, and navigation handoffs to understand how people use OnRoute and improve the experience. No names, emails, or personal identifiers are attached to analytics data.</p>
+
+    <h2>Crash Reporting</h2>
+    <p>We use <a href="https://firebase.google.com/support/privacy">Firebase Crashlytics</a> to collect crash reports. When the app crashes, diagnostic information (stack trace, device model, OS version) is sent automatically. This helps us find and fix bugs. Crash data does not include your search queries or location.</p>
+
+    <h2>Email Collection</h2>
+    <p>If you provide your email via the waitlist form or in-app prompt, we store it to send you product updates and launch notifications. You can unsubscribe at any time by emailing us. We do not share your email with third parties.</p>
 
     <h2>Third-Party Services</h2>
-    <p>The app uses these services to function:</p>
     <ul>
-        <li><strong>Google Maps Platform</strong> (Routes API, Places API) — to calculate routes and find places. Subject to <a href="https://policies.google.com/privacy">Google's Privacy Policy</a>.</li>
-        <li><strong>Apple MapKit</strong> (iOS only) — for map rendering and address autocomplete. Subject to <a href="https://www.apple.com/legal/privacy/">Apple's Privacy Policy</a>.</li>
-        <li><strong>Google Maps SDK</strong> (Android only) — for map rendering. Subject to <a href="https://policies.google.com/privacy">Google's Privacy Policy</a>.</li>
+        <li><strong>Google Maps Platform</strong> (Routes API, Places API) — route calculation and place search. <a href="https://policies.google.com/privacy">Privacy Policy</a></li>
+        <li><strong>Apple MapKit</strong> (iOS) — map display and autocomplete. <a href="https://www.apple.com/legal/privacy/">Privacy Policy</a></li>
+        <li><strong>Google Maps SDK</strong> (Android) — map display. <a href="https://policies.google.com/privacy">Privacy Policy</a></li>
+        <li><strong>PostHog</strong> — anonymous analytics. <a href="https://posthog.com/privacy">Privacy Policy</a></li>
+        <li><strong>Firebase Crashlytics</strong> — crash reporting. <a href="https://firebase.google.com/support/privacy">Privacy Policy</a></li>
+        <li><strong>Vercel</strong> — hosting. <a href="https://vercel.com/legal/privacy-policy">Privacy Policy</a></li>
     </ul>
 
-    <h2>Data Retention</h2>
-    <p>Search queries are cached on our server for up to 1 hour to improve performance and reduce API costs. After that, they are deleted. We do not store search history long-term.</p>
+    <h2>Data Storage and Retention</h2>
+    <ul>
+        <li><strong>Search queries</strong>: cached on our server for up to 1 hour, then deleted.</li>
+        <li><strong>Saved routes and search history</strong>: stored on your device only. Not sent to our servers.</li>
+        <li><strong>Analytics events</strong>: retained by PostHog per their data retention policy.</li>
+        <li><strong>Crash reports</strong>: retained by Firebase for 90 days.</li>
+        <li><strong>Email addresses</strong>: retained until you unsubscribe.</li>
+    </ul>
+
+    <h2>Children's Privacy</h2>
+    <p>OnRoute is not directed at children under 13. We do not knowingly collect data from children.</p>
 
     <h2>Your Rights</h2>
-    <p>Since we don't collect personal data, there's nothing to delete or export. If you have questions, email us.</p>
+    <p>You can request deletion of any data we hold about you by emailing us. Since analytics are anonymous and not linked to your identity, they cannot be individually deleted. Saved routes and search history are stored on your device — delete the app to remove them.</p>
 
     <h2>Changes</h2>
-    <p>We may update this policy as the app evolves. Changes will be posted on this page.</p>
+    <p>We may update this policy as the app evolves. Changes will be posted on this page with an updated date.</p>
 
     <h2>Contact</h2>
-    <p>Questions? Email <a href="mailto:ahmed.khaled.a.mohamed@gmail.com">ahmed.khaled.a.mohamed@gmail.com</a></p>
+    <p>Questions about this policy? Email <a href="mailto:ahmed.khaled.a.mohamed@gmail.com">ahmed.khaled.a.mohamed@gmail.com</a></p>
 
     <p style="margin-top: 40px; font-size: 13px; color: #888;">© 2026 OnRoute</p>
 </body>
