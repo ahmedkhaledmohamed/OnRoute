@@ -38,9 +38,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(viewModel: RouteViewModel = viewModel()) {
-    val toronto = LatLng(43.6532, -79.3832)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(toronto, 12f)
+        position = CameraPosition.fromLatLngZoom(LatLng(0.0, 0.0), 2f)
     }
     val scope = rememberCoroutineScope()
     val sheetState = rememberBottomSheetScaffoldState()
@@ -76,7 +75,6 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
         }
     }
 
-    // Request location on first launch
     LaunchedEffect(Unit) {
         if (viewModel.locationService.hasLocationPermission()) {
             viewModel.locationService.getCurrentLocation()?.let { latLng ->

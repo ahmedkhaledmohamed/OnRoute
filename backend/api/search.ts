@@ -254,8 +254,8 @@ async function searchAlongRoute(
     Math.pow((origin.lat - destination.lat) * 111, 2) +
     Math.pow((origin.lng - destination.lng) * 111 * Math.cos(midLat * Math.PI / 180), 2)
   );
-  // Radius = half the route distance + 2km buffer, min 3km, max 30km
-  const radiusMeters = Math.min(30000, Math.max(3000, (distKm / 2 + 2) * 1000));
+  // Radius = half the route distance + 5km buffer, min 10km, max 50km
+  const radiusMeters = Math.min(50000, Math.max(10000, (distKm / 2 + 5) * 1000));
 
   const body: Record<string, unknown> = {
     textQuery: query,
@@ -277,9 +277,9 @@ async function searchAlongRoute(
     },
   };
 
-  if (openNow) {
-    body.openNow = true;
-  }
+  // Don't send openNow to the API — Google's opening hours data is incomplete
+  // in many regions, which causes places without hours data to be excluded entirely.
+  // Instead, we return the isOpenNow field per result and let clients filter locally.
 
   const response = await fetch(
     "https://places.googleapis.com/v1/places:searchText",

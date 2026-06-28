@@ -9,12 +9,7 @@ struct ContentView: View {
     @State private var showResults = false
     @State private var detourLeg1: MKRoute?
     @State private var detourLeg2: MKRoute?
-    @State private var position: MapCameraPosition = .userLocation(fallback: .region(
-        MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832),
-            span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-        )
-    ))
+    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
 
     private var hasDetour: Bool { detourLeg1 != nil }
 
