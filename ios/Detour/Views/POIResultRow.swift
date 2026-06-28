@@ -7,6 +7,8 @@ struct POIResultRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
+            photoView
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(poi.name)
                     .font(.subheadline.weight(.medium))
@@ -62,5 +64,36 @@ struct POIResultRow: View {
         .padding(.vertical, 10)
         .background(isSelected ? Color.accentColor.opacity(0.08) : Color.clear)
         .contentShape(Rectangle())
+    }
+
+    @ViewBuilder
+    private var photoView: some View {
+        if let ref = poi.photoReference {
+            AsyncImage(url: URL(string: "\(APIService.baseURL)/api/photo?ref=\(ref)&maxWidth=200")) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 48, height: 48)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                default:
+                    photoPlaceholder
+                }
+            }
+        } else {
+            photoPlaceholder
+        }
+    }
+
+    private var photoPlaceholder: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(.quaternary)
+            .frame(width: 48, height: 48)
+            .overlay {
+                Image(systemName: "mappin.circle.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(.tertiary)
+            }
     }
 }

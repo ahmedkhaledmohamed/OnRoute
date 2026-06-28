@@ -78,5 +78,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
 
+    implementation(libs.coil.compose)
+
     implementation("com.google.android.material:material:1.12.0")
 }
