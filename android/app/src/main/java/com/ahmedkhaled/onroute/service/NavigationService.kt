@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.ahmedkhaled.onroute.model.POIResult
-import com.google.android.gms.maps.model.LatLng
 import java.net.URLEncoder
 
 object NavigationService {
@@ -26,12 +25,14 @@ object NavigationService {
             "BICYCLE" -> "bicycling"
             else -> "driving"
         }
+        AnalyticsService.track("navigation_opened", mapOf("app" to "Google Maps"))
         val url = "https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$dest&waypoints=$stop&travelmode=$mode"
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         context.startActivity(intent)
     }
 
     fun openWaze(context: Context, poi: POIResult) {
+        AnalyticsService.track("navigation_opened", mapOf("app" to "Waze"))
         val url = "waze://?ll=${poi.lat},${poi.lng}&navigate=yes"
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))

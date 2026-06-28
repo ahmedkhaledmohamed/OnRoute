@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.ahmedkhaled.onroute.service.AnalyticsService
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,6 +27,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        AnalyticsService.track("app_opened")
         setContent {
             OnRouteTheme {
                 OnRouteRoot()
@@ -53,6 +55,7 @@ fun OnRouteRoot() {
                 scope.launch {
                     context.dataStore.edit { it[HAS_SEEN_ONBOARDING] = true }
                     hasSeenOnboarding = true
+                    AnalyticsService.track("onboarding_completed")
                 }
             }
         )

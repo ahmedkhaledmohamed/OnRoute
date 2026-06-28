@@ -43,6 +43,7 @@ struct OnboardingView: View {
 
             Button {
                 hasSeenOnboarding = true
+                AnalyticsService.shared.track("onboarding_completed")
             } label: {
                 Text("Get Started")
                     .font(.headline)

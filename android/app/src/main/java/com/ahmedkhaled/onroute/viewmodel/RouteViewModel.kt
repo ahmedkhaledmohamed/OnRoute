@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahmedkhaled.onroute.model.*
+import com.ahmedkhaled.onroute.service.AnalyticsService
 import com.ahmedkhaled.onroute.service.ApiService
 import com.ahmedkhaled.onroute.service.DirectionsService
 import com.ahmedkhaled.onroute.service.LocationService
@@ -186,6 +187,11 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
                     errorMessage = "No places found along this route. Try a different category."
                 }
                 isLoading = false
+                AnalyticsService.track("search_executed", mapOf(
+                    "category" to (selectedCategory?.name ?: "custom"),
+                    "travelMode" to travelMode.apiValue,
+                    "resultCount" to response.results.size,
+                ))
             } catch (e: Exception) {
                 errorMessage = e.message ?: "Search failed"
                 isLoading = false
@@ -207,6 +213,10 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
 
     fun selectPOI(poi: POIResult) {
         selectedPOI = poi
+        AnalyticsService.track("poi_selected", mapOf(
+            "detourSeconds" to poi.detourSeconds,
+            "rating" to poi.rating,
+        ))
         val origin = originLatLng ?: return
         val destination = destinationLatLng ?: return
 

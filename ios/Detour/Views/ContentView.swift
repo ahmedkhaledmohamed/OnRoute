@@ -312,6 +312,10 @@ struct ContentView: View {
     private func selectPOI(_ poi: POIResult) {
         viewModel.selectedPOI = poi
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        AnalyticsService.shared.track("poi_selected", properties: [
+            "detourSeconds": poi.detourSeconds,
+            "rating": poi.rating,
+        ])
 
         guard let origin = viewModel.originCoordinate,
               let destination = viewModel.destinationCoordinate else { return }

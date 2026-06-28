@@ -237,6 +237,11 @@ final class RouteViewModel {
                         self.errorMessage = "No places found along this route. Try a different category."
                     }
                     self.isLoading = false
+                    AnalyticsService.shared.track("search_executed", properties: [
+                        "category": self.selectedCategory?.rawValue ?? "custom",
+                        "travelMode": self.travelMode.rawValue,
+                        "resultCount": searchResponse.results.count,
+                    ])
                 }
             } catch {
                 await MainActor.run {

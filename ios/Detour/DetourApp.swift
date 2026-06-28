@@ -12,5 +12,12 @@ struct DetourApp: App {
                 OnboardingView(hasSeenOnboarding: $hasSeenOnboarding)
             }
         }
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
+                AnalyticsService.shared.track("app_opened")
+            }
+        }
     }
+
+    @Environment(\.scenePhase) private var scenePhase
 }

@@ -42,6 +42,8 @@ struct NavigationService {
         travelMode: String = "DRIVE",
         using app: NavigationApp
     ) {
+        AnalyticsService.shared.track("navigation_opened", properties: ["app": app.rawValue])
+
         switch app {
         case .appleMaps:
             openAppleMaps(poi: poi, origin: origin, destination: destination, travelMode: travelMode)
