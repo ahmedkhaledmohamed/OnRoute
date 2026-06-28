@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Email
@@ -272,6 +273,14 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
                     }
                 }
 
+                if (viewModel.routePoints.isEmpty() && viewModel.savedRoutes.isNotEmpty()) {
+                    SavedRoutesBar(
+                        routes = viewModel.savedRoutes,
+                        onSelect = { viewModel.loadSavedRoute(it) },
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
                 RouteInputPanel(
                     viewModel = viewModel,
                     onSearch = { viewModel.search() },
@@ -342,6 +351,17 @@ private fun ResultsSheet(viewModel: RouteViewModel) {
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f)
             )
+            if (viewModel.isSearchReady) {
+                IconButton(
+                    onClick = {
+                        val name = "${viewModel.originName ?: "A"} → ${viewModel.destinationName ?: "B"}"
+                        viewModel.saveCurrentRoute(name)
+                    },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(Icons.Default.Bookmark, "Save route", modifier = Modifier.size(18.dp))
+                }
+            }
             IconButton(
                 onClick = { NavigationService.sendFeedback(context) },
                 modifier = Modifier.size(32.dp)
