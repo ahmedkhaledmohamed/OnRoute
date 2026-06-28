@@ -17,7 +17,8 @@ object AnalyticsService {
     private const val KEY_ANONYMOUS_ID = "anonymous_id"
 
     private val client = OkHttpClient()
-    private var anonymousId: String = ""
+    var anonymousId: String = ""
+        private set
 
     fun init(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

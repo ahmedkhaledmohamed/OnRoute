@@ -27,6 +27,12 @@ interface ApiService {
             val client = OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor { chain ->
+                    val request = chain.request().newBuilder()
+                        .addHeader("X-Anonymous-Id", AnalyticsService.anonymousId)
+                        .build()
+                    chain.proceed(request)
+                }
                 .build()
 
             return Retrofit.Builder()

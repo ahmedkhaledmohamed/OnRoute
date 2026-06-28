@@ -5,6 +5,10 @@ const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 20; // requests per window
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 
+// Daily quota: per anonymousId, in-memory (resets on cold start or midnight UTC)
+const quotaMap = new Map<string, { count: number; date: string }>();
+const DAILY_QUOTA_FREE = 50;
+
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
@@ -14,6 +18,20 @@ function checkRateLimit(ip: string): boolean {
   }
   entry.count++;
   return entry.count <= RATE_LIMIT_MAX;
+}
+
+function checkAndIncrementQuota(anonymousId: string): { allowed: boolean; remaining: number; limit: number } {
+  const today = new Date().toISOString().slice(0, 10);
+  const entry = quotaMap.get(anonymousId);
+  if (!entry || entry.date !== today) {
+    quotaMap.set(anonymousId, { count: 1, date: today });
+    return { allowed: true, remaining: DAILY_QUOTA_FREE - 1, limit: DAILY_QUOTA_FREE };
+  }
+  if (entry.count >= DAILY_QUOTA_FREE) {
+    return { allowed: false, remaining: 0, limit: DAILY_QUOTA_FREE };
+  }
+  entry.count++;
+  return { allowed: true, remaining: DAILY_QUOTA_FREE - entry.count, limit: DAILY_QUOTA_FREE };
 }
 
 // CORS: restrict to known origins
@@ -378,7 +396,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const corsOrigin = getCorsOrigin(req);
   res.setHeader("Access-Control-Allow-Origin", corsOrigin || "null");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Anonymous-Id");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -392,6 +410,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || "unknown";
   if (!checkRateLimit(ip)) {
     return res.status(429).json({ error: "Too many requests. Try again in a minute." });
+  }
+
+  // Daily quota
+  const anonymousId = req.headers["x-anonymous-id"] as string;
+  let quota: { remaining: number; limit: number } | undefined;
+  if (anonymousId) {
+    const result = checkAndIncrementQuota(anonymousId);
+    quota = { remaining: result.remaining, limit: result.limit };
+    if (!result.allowed) {
+      return res.status(429).json({
+        error: `Daily search limit reached (${DAILY_QUOTA_FREE}/day). Resets at midnight UTC.`,
+        quota,
+      });
+    }
   }
 
   if (!API_KEY) {
@@ -436,7 +468,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const maxSeconds = body.maxDetourMinutes * 60;
       results = results.filter((r) => r.detourSeconds <= maxSeconds);
     }
-    return res.status(200).json({ ...cached, results, cached: true });
+    return res.status(200).json({ ...cached, results, cached: true, quota });
   }
 
   try {
@@ -481,7 +513,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       results = results.filter((r) => r.detourSeconds <= maxSeconds);
     }
 
-    return res.status(200).json({ results, route, cached: false });
+    return res.status(200).json({ results, route, cached: false, quota });
   } catch (error) {
     const raw = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({ error: sanitizeError(raw) });

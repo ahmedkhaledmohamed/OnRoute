@@ -46,6 +46,7 @@ struct APIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(AnalyticsService.shared.anonymousId, forHTTPHeaderField: "X-Anonymous-Id")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         request.timeoutInterval = 30
 
