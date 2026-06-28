@@ -13,6 +13,11 @@ struct ContentView: View {
     @State private var savedRoutes: [SavedRoute] = []
     @State private var recentSearches: [RecentSearch] = []
     @State private var showSavePrompt = false
+    @State private var showNPSPrompt = false
+    @State private var showEmailPrompt = false
+    @AppStorage("searchCount") private var searchCount = 0
+    @AppStorage("hasSubmittedNPS") private var hasSubmittedNPS = false
+    @AppStorage("hasSeenEmailPrompt") private var hasSeenEmailPrompt = false
 
     private var hasDetour: Bool { detourLeg1 != nil }
 
@@ -20,6 +25,28 @@ struct ContentView: View {
         ZStack(alignment: .top) {
             mapView
                 .ignoresSafeArea()
+
+            if showNPSPrompt {
+                VStack {
+                    Spacer()
+                    NPSPromptView(isPresented: $showNPSPrompt)
+                        .padding(.bottom, 200)
+                }
+                .transition(.move(edge: .bottom))
+                .animation(.spring(duration: 0.3), value: showNPSPrompt)
+                .zIndex(10)
+            }
+
+            if showEmailPrompt {
+                VStack {
+                    Spacer()
+                    EmailPromptView(isPresented: $showEmailPrompt)
+                        .padding(.bottom, 200)
+                }
+                .transition(.move(edge: .bottom))
+                .animation(.spring(duration: 0.3), value: showEmailPrompt)
+                .zIndex(10)
+            }
 
             VStack(spacing: 0) {
                 Spacer()
@@ -60,6 +87,17 @@ struct ContentView: View {
         .onChange(of: viewModel.poiResults) {
             if !viewModel.poiResults.isEmpty {
                 showResults = true
+                searchCount += 1
+                if searchCount == 5 && !hasSubmittedNPS {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        showNPSPrompt = true
+                    }
+                }
+                if searchCount == 1 && !hasSeenEmailPrompt {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        showEmailPrompt = true
+                    }
+                }
             }
         }
         .onAppear {

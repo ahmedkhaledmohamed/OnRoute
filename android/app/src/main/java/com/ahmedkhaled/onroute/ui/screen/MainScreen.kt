@@ -20,6 +20,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,8 +59,12 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
         )
     }
 
-    // Snap to user location on launch
     var hasRequestedLocation by remember { mutableStateOf(false) }
+    var showNPSPrompt by remember { mutableStateOf(false) }
+    var showEmailPrompt by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("onroute_prompts", android.content.Context.MODE_PRIVATE) }
+    var searchCount by remember { mutableIntStateOf(prefs.getInt("searchCount", 0)) }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -105,6 +110,16 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
     LaunchedEffect(viewModel.poiResults) {
         if (viewModel.poiResults.isNotEmpty()) {
             sheetState.bottomSheetState.expand()
+            searchCount++
+            prefs.edit().putInt("searchCount", searchCount).apply()
+            if (searchCount == 5 && !prefs.getBoolean("hasSubmittedNPS", false)) {
+                kotlinx.coroutines.delay(2000)
+                showNPSPrompt = true
+            }
+            if (searchCount == 1 && !prefs.getBoolean("hasSeenEmailPrompt", false)) {
+                kotlinx.coroutines.delay(3000)
+                showEmailPrompt = true
+            }
         }
     }
 
@@ -274,6 +289,22 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
                             }
                         }
                     }
+                }
+
+                if (showNPSPrompt) {
+                    NPSPrompt(onDismiss = {
+                        showNPSPrompt = false
+                        prefs.edit().putBoolean("hasSubmittedNPS", true).apply()
+                    })
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                if (showEmailPrompt) {
+                    EmailPrompt(onDismiss = { _ ->
+                        showEmailPrompt = false
+                        prefs.edit().putBoolean("hasSeenEmailPrompt", true).apply()
+                    })
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
 
                 if (viewModel.routePoints.isEmpty() && viewModel.savedRoutes.isNotEmpty()) {
