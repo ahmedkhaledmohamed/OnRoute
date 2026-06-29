@@ -3,7 +3,7 @@ import Foundation
 final class AnalyticsService {
     static let shared = AnalyticsService()
 
-    private let anonymousId: String
+    let anonymousId: String
 
     private init() {
         let key = "analyticsAnonymousId"

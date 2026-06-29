@@ -11,7 +11,7 @@ struct EmailPromptView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "envelope.badge.fill")
                         .font(.system(size: 28))
-                        .foregroundStyle(.accentColor)
+                        .foregroundStyle(Color.accentColor)
                     Text("You're on the list!")
                         .font(.subheadline.weight(.medium))
                 }

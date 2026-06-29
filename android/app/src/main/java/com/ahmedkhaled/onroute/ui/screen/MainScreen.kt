@@ -319,7 +319,7 @@ fun MainScreen(viewModel: RouteViewModel = viewModel()) {
                     Row(
                         modifier = Modifier
                             .horizontalScroll(rememberScrollState())
-                            .padding(horizontal = 12.dp, bottom = 8.dp),
+                            .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         viewModel.recentSearches.take(5).forEach { recent ->
