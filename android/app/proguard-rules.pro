@@ -29,3 +29,19 @@
 # Kotlin
 -dontwarn kotlin.**
 -keepclassmembers class **$WhenMappings { <fields>; }
+
+# Firebase Crashlytics
+-keep class com.google.firebase.crashlytics.** { *; }
+-dontwarn com.google.firebase.crashlytics.**
+
+# Coil
+-keep class coil.** { *; }
+-dontwarn coil.**
+
+# Google Places SDK
+-keep class com.google.android.libraries.places.** { *; }
+-dontwarn com.google.android.libraries.places.**
+
+# AndroidX DataStore
+-keep class androidx.datastore.** { *; }
+-dontwarn androidx.datastore.**
