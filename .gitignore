@@ -42,6 +42,11 @@ node_modules/
 ios/keys/
 AuthKey_*.p8
 
+# Android signing
+*.jks
+*.keystore
+keystore.properties
+
 # IDE
 .idea/
 .vscode/
