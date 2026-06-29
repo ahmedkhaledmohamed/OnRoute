@@ -1,0 +1,67 @@
+{
+  "appInfo": {
+    "name": "OnRoute",
+    "packageName": "com.ahmedkhaled.onroute",
+    "defaultLanguage": "en-US",
+    "category": "MAPS_AND_NAVIGATION",
+    "contentRating": "Everyone",
+    "pricing": "Free"
+  },
+  "listing": {
+    "title": "OnRoute — Find What's Worth the Stop",
+    "shortDescription": "Search for places along your route, ranked by detour time. Coffee, food, gas — sorted by how little time they add.",
+    "fullDescription": "OnRoute shows you places along your driving route, ranked by how little time they add to your trip.\n\nEnter where you're going, pick what you need — coffee, food, gas, groceries, pharmacy, or EV charging — and instantly see every option sorted by detour time. \"+2 min\" beats \"+15 min.\"\n\nKEY FEATURES:\n\n• Ranked by detour time: Every result shows exactly how many minutes it adds to your trip\n• Max-detour slider: Set your time budget — \"only show places adding less than 5 minutes\"\n• Place photos: See what each place looks like before you stop\n• Saved routes: Save your commute and search with one tap\n• Forward-only results: Never see places behind you on the route\n• Visual detour preview: Tap any result to see the A → B → C route on the map\n• One-tap navigation: Open the route in Google Maps or Waze\n• Six categories: Coffee, Food, Gas, Grocery, Pharmacy, EV Charging\n\nPERFECT FOR:\n• Daily commuters who want a quick coffee stop\n• Parents picking up dinner on the way home\n• Road trippers planning efficient stops\n• Anyone who's ever thought \"I wish I could find something good without going too far off my route\"\n\nGoogle Maps shows you what's nearby. OnRoute shows you what's worth the stop."
+  },
+  "urls": {
+    "privacyPolicyUrl": "https://onroute-landing.vercel.app/privacy.html",
+    "websiteUrl": "https://onroute-landing.vercel.app",
+    "supportEmail": "ahmed.khaled.a.mohamed@gmail.com"
+  },
+  "dataSafety": {
+    "dataCollected": [
+      {
+        "type": "Location (approximate)",
+        "purpose": "App functionality",
+        "optional": true,
+        "encrypted": true,
+        "deletable": false,
+        "note": "Only when user taps Current Location. Not tracked in background."
+      },
+      {
+        "type": "App interactions",
+        "purpose": "Analytics",
+        "optional": false,
+        "encrypted": true,
+        "deletable": false,
+        "note": "Anonymous search events (no personal identifiers)"
+      },
+      {
+        "type": "Crash logs",
+        "purpose": "App functionality",
+        "optional": false,
+        "encrypted": true,
+        "deletable": false,
+        "note": "Firebase Crashlytics"
+      },
+      {
+        "type": "Email address",
+        "purpose": "Marketing",
+        "optional": true,
+        "encrypted": true,
+        "deletable": true,
+        "note": "Optional signup for product updates"
+      }
+    ],
+    "dataShared": false,
+    "securityPractices": {
+      "dataEncryptedInTransit": true,
+      "dataCanBeDeleted": "Email addresses on request",
+      "independentSecurityReview": false
+    }
+  },
+  "signing": {
+    "uploadKeystoreAlias": "upload",
+    "sha1": "46:75:54:39:F8:90:75:7D:E5:6C:C2:80:02:81:8E:A4:ED:D4:61:9B",
+    "sha256": "7B:84:26:71:84:41:CA:39:B7:C3:CD:62:A0:51:82:D3:1C:40:FF:3F:3E:AE:6F:A9:21:D5:5F:14:5E:F8:B3:DF"
+  }
+}

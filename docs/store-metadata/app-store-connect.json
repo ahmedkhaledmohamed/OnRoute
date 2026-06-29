@@ -1,0 +1,71 @@
+{
+  "appInfo": {
+    "name": "OnRoute",
+    "subtitle": "Find stops ranked by detour time",
+    "bundleId": "com.ahmedkhaled.detour",
+    "sku": "onroute-ios",
+    "primaryLanguage": "en-CA",
+    "primaryCategory": "Navigation",
+    "secondaryCategory": "Travel",
+    "contentRights": "This app does not contain third-party content that requires rights."
+  },
+  "appVersion": {
+    "version": "1.0.0",
+    "copyright": "2026 Ahmed Khaled Mohamed",
+    "whatsNew": "Initial release! Search for places along your route, ranked by detour time. Features: detour-ranked results, max-detour slider, place photos, saved routes, search history, and navigation handoff to Apple Maps, Google Maps, or Waze."
+  },
+  "description": "OnRoute shows you places along your driving route, ranked by how little time they add to your trip.\n\nEnter where you're going, pick what you need — coffee, food, gas, groceries, pharmacy, or EV charging — and instantly see every option sorted by detour time. \"+2 min\" beats \"+15 min.\"\n\nKEY FEATURES:\n\n• Ranked by detour time: Every result shows exactly how many minutes it adds to your trip\n• Max-detour slider: Set your time budget — \"only show places adding less than 5 minutes\"\n• Place photos: See what each place looks like before you stop\n• Saved routes: Save your commute and search with one tap\n• Forward-only results: Never see places behind you on the route\n• Visual detour preview: Tap any result to see the A → B → C route on the map\n• One-tap navigation: Open the route in Apple Maps, Google Maps, or Waze\n• Six categories: Coffee, Food, Gas, Grocery, Pharmacy, EV Charging\n\nPERFECT FOR:\n• Daily commuters who want a quick coffee stop\n• Parents picking up dinner on the way home\n• Road trippers planning efficient stops\n• Anyone who's ever thought \"I wish I could find something good without going too far off my route\"\n\nGoogle Maps shows you what's nearby. OnRoute shows you what's worth the stop.",
+  "keywords": "detour,route,stops,coffee,food,gas,commute,navigation,places,along route,driving,trip,nearby",
+  "urls": {
+    "supportUrl": "mailto:ahmed.khaled.a.mohamed@gmail.com",
+    "marketingUrl": "https://onroute-landing.vercel.app",
+    "privacyPolicyUrl": "https://onroute-landing.vercel.app/privacy.html"
+  },
+  "appPrivacy": {
+    "dataTypes": [
+      {
+        "type": "Location",
+        "purpose": "App Functionality",
+        "collection": "When user taps Current Location button",
+        "linked": false,
+        "tracking": false
+      },
+      {
+        "type": "Usage Data",
+        "purpose": "Analytics",
+        "collection": "Anonymous search events and feature usage",
+        "linked": false,
+        "tracking": false
+      },
+      {
+        "type": "Crash Data",
+        "purpose": "App Functionality",
+        "collection": "Crash reports via Firebase Crashlytics",
+        "linked": false,
+        "tracking": false
+      },
+      {
+        "type": "Email Address",
+        "purpose": "Marketing",
+        "collection": "Optional in-app signup for product updates",
+        "linked": false,
+        "tracking": false
+      }
+    ]
+  },
+  "ageRating": {
+    "madeForKids": false,
+    "ageRatingDeclaration": {
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlonged": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "drugsOrAlcohol": "NONE",
+      "gambling": false,
+      "contests": "NONE",
+      "unrestrictedWebAccess": false,
+      "horrorOrFearThemes": "NONE"
+    }
+  }
+}
