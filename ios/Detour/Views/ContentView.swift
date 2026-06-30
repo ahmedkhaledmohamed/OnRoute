@@ -354,7 +354,12 @@ struct ContentView: View {
                 CategoryBar(viewModel: viewModel)
                     .padding(.vertical, 8)
 
-                MultiStopBar(viewModel: viewModel)
+                MultiStopBar(viewModel: viewModel, onNavigateAll: {
+                    if let first = viewModel.selectedStops.first {
+                        navigatingPOI = first
+                        showNavSheet = true
+                    }
+                })
                     .padding(.bottom, 4)
 
                 FiltersBar(viewModel: viewModel)
@@ -400,6 +405,8 @@ struct ContentView: View {
                                 POIResultRow(
                                     poi: poi,
                                     isSelected: viewModel.selectedPOI == poi,
+                                    isInRoute: viewModel.selectedStops.contains(where: { $0.placeId == poi.placeId }),
+                                    routeStopNumber: viewModel.selectedStops.firstIndex(where: { $0.placeId == poi.placeId }).map { $0 + 1 },
                                     onNavigate: { navigateTo($0) }
                                 )
                             }

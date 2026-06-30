@@ -3,10 +3,24 @@ import SwiftUI
 struct POIResultRow: View {
     let poi: POIResult
     let isSelected: Bool
+    var isInRoute: Bool = false
+    var routeStopNumber: Int? = nil
     var onNavigate: ((POIResult) -> Void)?
 
     var body: some View {
         HStack(spacing: 12) {
+            if let num = routeStopNumber {
+                Text("\(num)")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .frame(width: 22, height: 22)
+                    .background(.orange, in: Circle())
+                    .foregroundStyle(.white)
+            } else if isInRoute {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(.green)
+            }
+
             photoView
 
             VStack(alignment: .leading, spacing: 4) {
@@ -85,7 +99,7 @@ struct POIResultRow: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(isSelected ? Color.accentColor.opacity(0.08) : Color.clear)
+        .background(isInRoute ? Color.orange.opacity(0.08) : isSelected ? Color.accentColor.opacity(0.08) : Color.clear)
         .contentShape(Rectangle())
     }
 

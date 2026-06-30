@@ -65,82 +65,107 @@ struct CategoryBar: View {
 struct MultiStopBar: View {
     @Bindable var viewModel: RouteViewModel
     @State private var showAddStop = false
+    var onNavigateAll: () -> Void = {}
 
     var body: some View {
-        if !viewModel.additionalQueries.isEmpty || showAddStop {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 6) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                    Text("Stops:")
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.secondary)
-
-                    ForEach(Array(viewModel.additionalQueries.enumerated()), id: \.offset) { index, query in
-                        HStack(spacing: 4) {
-                            Text(query)
-                                .font(.caption2.weight(.medium))
+        VStack(alignment: .leading, spacing: 8) {
+            if !viewModel.selectedStops.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Image(systemName: "map.fill")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.orange)
+                        Text("Your Route")
+                            .font(.caption.weight(.bold))
+                        Text("(\(viewModel.selectedStops.count) \(viewModel.selectedStops.count == 1 ? "stop" : "stops"))")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        if viewModel.selectedStops.count >= 2 {
                             Button {
-                                viewModel.removeStop(at: index)
+                                onNavigateAll()
                             } label: {
-                                Image(systemName: "xmark")
-                                    .font(.system(size: 8, weight: .bold))
+                                HStack(spacing: 3) {
+                                    Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                                        .font(.system(size: 9))
+                                    Text("Navigate")
+                                        .font(.caption2.weight(.semibold))
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(.blue, in: Capsule())
+                                .foregroundStyle(.white)
                             }
+                            .buttonStyle(.plain)
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.orange.opacity(0.15), in: Capsule())
+                    }
+
+                    ForEach(Array(viewModel.selectedStops.enumerated()), id: \.element.placeId) { idx, stop in
+                        HStack(spacing: 6) {
+                            Text("\(idx + 1)")
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .frame(width: 18, height: 18)
+                                .background(.orange, in: Circle())
+                                .foregroundStyle(.white)
+
+                            Text(stop.name)
+                                .font(.caption)
+                                .lineLimit(1)
+
+                            Text(stop.detourFormatted)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+
+                            Spacer()
+
+                            Button {
+                                viewModel.selectedStops.removeAll { $0.placeId == stop.placeId }
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+
+                    let totalDetour = viewModel.selectedStops.reduce(0) { $0 + $1.detourSeconds }
+                    let totalMin = totalDetour / 60
+                    Text("Total detour: +\(totalMin) min")
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.orange)
+                }
+                .padding(10)
+                .background(Color.orange.opacity(0.06), in: RoundedRectangle(cornerRadius: 10))
+                .padding(.horizontal, 16)
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(RouteViewModel.Category.allCases) { cat in
+                        if cat.query != viewModel.searchQuery && !viewModel.additionalQueries.contains(cat.query) {
+                            Button {
+                                viewModel.addStop(cat)
+                            } label: {
+                                HStack(spacing: 3) {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 8, weight: .bold))
+                                    Image(systemName: cat.icon)
+                                        .font(.system(size: 10))
+                                    Text(cat.rawValue)
+                                        .font(.caption2)
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 5)
+                                .background(Color(.systemGray5), in: Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
                 .padding(.horizontal, 16)
-
-                if showAddStop {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 6) {
-                            ForEach(RouteViewModel.Category.allCases) { cat in
-                                if cat.query != viewModel.searchQuery && !viewModel.additionalQueries.contains(cat.query) {
-                                    Button {
-                                        viewModel.addStop(cat)
-                                        showAddStop = false
-                                    } label: {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: cat.icon)
-                                                .font(.system(size: 10))
-                                            Text(cat.rawValue)
-                                                .font(.caption2)
-                                        }
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(Color(.systemGray5), in: Capsule())
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                    }
-                }
             }
         }
-
-        Button {
-            showAddStop.toggle()
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName: "plus")
-                    .font(.system(size: 10, weight: .bold))
-                Text("Add stop")
-                    .font(.caption2.weight(.medium))
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Color(.systemGray5), in: Capsule())
-        }
-        .buttonStyle(.plain)
-        .padding(.horizontal, 16)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
