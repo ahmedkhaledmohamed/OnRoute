@@ -47,6 +47,9 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
     var travelMode by mutableStateOf(TravelMode.DRIVE)
     var searchQuery by mutableStateOf("coffee")
         private set
+    var additionalQueries by mutableStateOf<List<String>>(emptyList())
+    var stopResults by mutableStateOf<List<StopResults>>(emptyList())
+        private set
     var selectedCategory by mutableStateOf<Category?>(Category.COFFEE)
     var maxDetourMinutes by mutableStateOf(15f)
     var openNowOnly by mutableStateOf(true)
@@ -180,11 +183,13 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             try {
+                val allQueries = if (additionalQueries.isNotEmpty()) listOf(searchQuery) + additionalQueries else null
                 val response = apiService.search(
                     SearchRequest(
                         origin = LatLngBody(origin.latitude, origin.longitude),
                         destination = LatLngBody(destination.latitude, destination.longitude),
                         query = searchQuery,
+                        queries = allQueries,
                         maxDetourMinutes = maxDetourMinutes.toInt(),
                         openNow = openNowOnly,
                         travelMode = travelMode.apiValue
@@ -199,6 +204,7 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
                 routeDistanceFormatted = if (km >= 10) "%.0f km".format(km) else "%.1f km".format(km)
 
                 poiResults = response.results
+                stopResults = response.stops ?: emptyList()
                 if (response.results.isEmpty()) {
                     errorMessage = "No places found along this route. Try a different category."
                 }
@@ -235,6 +241,20 @@ class RouteViewModel(application: Application) : AndroidViewModel(application) {
         destinationQuery = tmpQuery
         destinationLatLng = tmpLatLng
         destinationName = tmpName
+    }
+
+    fun addStop(category: Category) {
+        if (!additionalQueries.contains(category.query)) {
+            additionalQueries = additionalQueries + category.query
+            if (isSearchReady) search()
+        }
+    }
+
+    fun removeStop(index: Int) {
+        if (index < additionalQueries.size) {
+            additionalQueries = additionalQueries.toMutableList().apply { removeAt(index) }
+            if (isSearchReady) search()
+        }
     }
 
     fun loadRecentSearch(recent: RecentSearch) {

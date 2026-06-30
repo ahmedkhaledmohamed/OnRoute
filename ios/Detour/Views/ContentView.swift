@@ -322,6 +322,9 @@ struct ContentView: View {
                 CategoryBar(viewModel: viewModel)
                     .padding(.vertical, 8)
 
+                MultiStopBar(viewModel: viewModel)
+                    .padding(.bottom, 4)
+
                 FiltersBar(viewModel: viewModel)
                     .padding(.bottom, 8)
 

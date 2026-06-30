@@ -62,6 +62,7 @@ interface SearchRequest {
   origin: { lat: number; lng: number };
   destination: { lat: number; lng: number };
   query: string;
+  queries?: string[];
   maxDetourMinutes?: number;
   openNow?: boolean;
   travelMode?: "DRIVE" | "WALK" | "BICYCLE";
@@ -85,8 +86,14 @@ interface POIResult {
   photoReference?: string;
 }
 
+interface StopResults {
+  query: string;
+  results: POIResult[];
+}
+
 interface SearchResponse {
   results: POIResult[];
+  stops?: StopResults[];
   route: {
     encodedPolyline: string;
     durationSeconds: number;
@@ -473,47 +480,62 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const route = await computeRoute(body.origin, body.destination, travelMode);
+    const allQueries = body.queries && body.queries.length > 0 ? body.queries : [body.query];
 
-    // Places Search Along Route only supports DRIVE mode
-    let results = await searchAlongRoute(
-      route.encodedPolyline,
-      body.query,
-      body.origin,
-      body.destination,
-      openNow,
-      "DRIVE"
+    async function searchForQuery(query: string): Promise<POIResult[]> {
+      let results = await searchAlongRoute(
+        route.encodedPolyline, query, body.origin, body.destination, openNow, "DRIVE"
+      );
+      if (travelMode === "WALK" || travelMode === "BICYCLE") {
+        results = await recalculateDetours(
+          results, body.origin, body.destination, route.durationSeconds, travelMode
+        );
+      } else {
+        for (const result of results) {
+          if (result.detourSeconds > 0) {
+            const actualDetour = result.detourSeconds - route.durationSeconds;
+            result.detourSeconds = Math.max(0, actualDetour);
+            result.detourFormatted = formatDetour(result.detourSeconds);
+          }
+        }
+        results.sort((a, b) => a.detourSeconds - b.detourSeconds);
+      }
+      return results;
+    }
+
+    const stopResultsArray = await Promise.all(
+      allQueries.map(async (q) => ({ query: q, results: await searchForQuery(q) }))
     );
 
-    if (travelMode === "WALK" || travelMode === "BICYCLE") {
-      // Recalculate detour times using actual walk/bike routing
-      results = await recalculateDetours(
-        results, body.origin, body.destination,
-        route.durationSeconds, travelMode
-      );
-    } else {
-      // DRIVE: use SAR routing summaries directly
-      for (const result of results) {
-        if (result.detourSeconds > 0) {
-          const actualDetour = result.detourSeconds - route.durationSeconds;
-          result.detourSeconds = Math.max(0, actualDetour);
-          result.detourFormatted = formatDetour(result.detourSeconds);
-        }
-      }
-      results.sort((a, b) => a.detourSeconds - b.detourSeconds);
+    const allResults = stopResultsArray.flatMap((s) => s.results);
+    allResults.sort((a, b) => a.detourSeconds - b.detourSeconds);
+
+    const fullResponse: SearchResponse = {
+      results: allResults,
+      stops: allQueries.length > 1 ? stopResultsArray : undefined,
+      route,
+    };
+
+    if (allQueries.length === 1) {
+      setCache(cacheKey, fullResponse);
     }
 
-    const fullResponse: SearchResponse = { results, route };
-
-    // Cache the full unfiltered response
-    setCache(cacheKey, fullResponse);
-
-    // Apply maxDetourMinutes filter for this specific request
+    let filteredResults = [...allResults];
     if (body.maxDetourMinutes) {
       const maxSeconds = body.maxDetourMinutes * 60;
-      results = results.filter((r) => r.detourSeconds <= maxSeconds);
+      filteredResults = filteredResults.filter((r) => r.detourSeconds <= maxSeconds);
     }
 
-    return res.status(200).json({ results, route, cached: false, quota });
+    const stops = allQueries.length > 1
+      ? stopResultsArray.map((s) => ({
+          query: s.query,
+          results: body.maxDetourMinutes
+            ? s.results.filter((r) => r.detourSeconds <= (body.maxDetourMinutes ?? 999) * 60)
+            : s.results,
+        }))
+      : undefined;
+
+    return res.status(200).json({ results: filteredResults, stops, route, cached: false, quota });
   } catch (error) {
     const raw = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({ error: sanitizeError(raw) });

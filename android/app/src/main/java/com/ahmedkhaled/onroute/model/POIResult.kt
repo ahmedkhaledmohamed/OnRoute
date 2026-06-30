@@ -52,8 +52,15 @@ data class RouteInfo(
 )
 
 @JsonClass(generateAdapter = true)
+data class StopResults(
+    val query: String,
+    val results: List<POIResult>
+)
+
+@JsonClass(generateAdapter = true)
 data class SearchResponse(
     val results: List<POIResult>,
+    val stops: List<StopResults>? = null,
     val route: RouteInfo,
     val cached: Boolean? = null
 )
@@ -63,6 +70,7 @@ data class SearchRequest(
     val origin: LatLngBody,
     val destination: LatLngBody,
     val query: String,
+    val queries: List<String>? = null,
     val maxDetourMinutes: Int? = null,
     val openNow: Boolean = true,
     val travelMode: String = "DRIVE"

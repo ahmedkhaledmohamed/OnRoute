@@ -23,6 +23,7 @@ struct APIService {
         origin: (lat: Double, lng: Double),
         destination: (lat: Double, lng: Double),
         query: String,
+        queries: [String]? = nil,
         maxDetourMinutes: Int? = nil,
         openNow: Bool = true,
         travelMode: String = "DRIVE"
@@ -38,6 +39,10 @@ struct APIService {
             "openNow": openNow,
             "travelMode": travelMode,
         ]
+
+        if let queries, queries.count > 1 {
+            body["queries"] = queries
+        }
 
         if let maxDetour = maxDetourMinutes {
             body["maxDetourMinutes"] = maxDetour

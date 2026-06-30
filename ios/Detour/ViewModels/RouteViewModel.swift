@@ -18,8 +18,10 @@ final class RouteViewModel {
 
     var route: MKRoute?
     var poiResults: [POIResult] = []
+    var stopResults: [StopResults] = []
     var selectedPOI: POIResult?
     var searchQuery = "coffee"
+    var additionalQueries: [String] = []
     var maxDetourMinutes: Double = 15
     var openNowOnly = true
     var selectedCategory: Category? = .coffee
@@ -222,10 +224,12 @@ final class RouteViewModel {
                     }
                 }
 
+                let allQueries = additionalQueries.isEmpty ? nil : [searchQuery] + additionalQueries
                 let searchResponse = try await APIService.search(
                     origin: (origin.latitude, origin.longitude),
                     destination: (destination.latitude, destination.longitude),
                     query: searchQuery,
+                    queries: allQueries,
                     maxDetourMinutes: Int(maxDetourMinutes),
                     openNow: openNowOnly,
                     travelMode: travelMode.rawValue
@@ -233,6 +237,7 @@ final class RouteViewModel {
 
                 await MainActor.run {
                     self.poiResults = searchResponse.results
+                    self.stopResults = searchResponse.stops ?? []
                     if searchResponse.results.isEmpty {
                         self.errorMessage = "No places found along this route. Try a different category."
                     }
@@ -299,6 +304,24 @@ final class RouteViewModel {
         }
 
         search()
+    }
+
+    func addStop(_ category: Category) {
+        if !additionalQueries.contains(category.query) {
+            additionalQueries.append(category.query)
+            if isSearchReady { search() }
+        }
+    }
+
+    func removeStop(at index: Int) {
+        guard index < additionalQueries.count else { return }
+        additionalQueries.remove(at: index)
+        if isSearchReady { search() }
+    }
+
+    func clearStops() {
+        additionalQueries.removeAll()
+        stopResults.removeAll()
     }
 
     func loadRecentSearch(_ recent: RecentSearch) {

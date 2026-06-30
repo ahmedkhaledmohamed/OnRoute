@@ -47,8 +47,14 @@ struct POIResult: Identifiable, Codable, Hashable {
     }
 }
 
+struct StopResults: Codable {
+    let query: String
+    let results: [POIResult]
+}
+
 struct SearchResponse: Codable {
     let results: [POIResult]
+    let stops: [StopResults]?
     let route: RouteInfo
 }
 
