@@ -17,8 +17,15 @@ struct POIResult: Identifiable, Codable, Hashable {
     let todayHours: String?
     let types: [String]
     let photoReference: String?
+    var visited: Bool = false
 
     var id: String { placeId }
+
+    enum CodingKeys: String, CodingKey {
+        case placeId, name, address, lat, lng, detourSeconds, detourFormatted
+        case rating, userRatingCount, isOpenNow, priceLevel, phoneNumber, todayHours
+        case types, photoReference
+    }
 
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: lat, longitude: lng)

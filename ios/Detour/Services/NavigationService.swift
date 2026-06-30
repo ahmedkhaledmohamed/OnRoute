@@ -43,6 +43,7 @@ struct NavigationService {
         using app: NavigationApp
     ) {
         AnalyticsService.shared.track("navigation_opened", properties: ["app": app.rawValue])
+        recordVisit(poi: poi, origin: origin, destination: destination)
 
         switch app {
         case .appleMaps:
@@ -127,5 +128,35 @@ struct NavigationService {
         if let url = URL(string: urlString) {
             UIApplication.shared.open(url)
         }
+    }
+
+    private static func recordVisit(
+        poi: POIResult,
+        origin: CLLocationCoordinate2D?,
+        destination: CLLocationCoordinate2D?
+    ) {
+        var body: [String: Any] = [
+            "placeId": poi.placeId,
+            "placeName": poi.name,
+            "lat": poi.lat,
+            "lng": poi.lng,
+        ]
+        if let o = origin, let d = destination {
+            body["originLat"] = o.latitude
+            body["originLng"] = o.longitude
+            body["destLat"] = d.latitude
+            body["destLng"] = d.longitude
+        }
+
+        guard let url = URL(string: "\(APIService.baseURL)/api/visit"),
+              let jsonData = try? JSONSerialization.data(withJSONObject: body) else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(AnalyticsService.shared.anonymousId, forHTTPHeaderField: "X-Anonymous-Id")
+        request.httpBody = jsonData
+
+        Task { _ = try? await URLSession.shared.data(for: request) }
     }
 }

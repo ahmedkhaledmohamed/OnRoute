@@ -33,6 +33,16 @@ struct POIResultRow: View {
                         }
                     }
 
+                    if poi.visited {
+                        HStack(spacing: 2) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 9))
+                            Text("Visited")
+                                .font(.caption2.weight(.medium))
+                        }
+                        .foregroundStyle(.blue)
+                    }
+
                     if poi.isOpenNow {
                         Text("Open")
                             .font(.caption2.weight(.medium))

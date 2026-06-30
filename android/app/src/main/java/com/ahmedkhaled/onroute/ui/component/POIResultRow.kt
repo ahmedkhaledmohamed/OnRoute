@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -100,6 +101,21 @@ fun POIResultRow(
                             fontSize = 10.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                }
+
+                if (poi.visited) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            null,
+                            tint = Color(0xFF2196F3),
+                            modifier = Modifier.size(10.dp)
+                        )
+                        Text("Visited", fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Color(0xFF2196F3))
                     }
                 }
 

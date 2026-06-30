@@ -236,10 +236,13 @@ final class RouteViewModel {
                     travelMode: travelMode.rawValue
                 )
 
+                var results = searchResponse.results
+                results = await annotateWithVisits(results)
+
                 await MainActor.run {
-                    self.poiResults = searchResponse.results
+                    self.poiResults = results
                     self.stopResults = searchResponse.stops ?? []
-                    if searchResponse.results.isEmpty {
+                    if results.isEmpty {
                         self.errorMessage = "No places found along this route. Try a different category."
                     }
                     self.isLoading = false
@@ -305,6 +308,29 @@ final class RouteViewModel {
         }
 
         search()
+    }
+
+    private func annotateWithVisits(_ results: [POIResult]) async -> [POIResult] {
+        let ids = results.map(\.placeId).joined(separator: ",")
+        guard !ids.isEmpty,
+              let url = URL(string: "\(APIService.baseURL)/api/visit?placeIds=\(ids)") else {
+            return results
+        }
+
+        var request = URLRequest(url: url)
+        request.setValue(AnalyticsService.shared.anonymousId, forHTTPHeaderField: "X-Anonymous-Id")
+
+        guard let (data, _) = try? await URLSession.shared.data(for: request),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let visits = json["visits"] as? [String: Any] else {
+            return results
+        }
+
+        return results.map { poi in
+            var updated = poi
+            updated.visited = visits[poi.placeId] != nil
+            return updated
+        }
     }
 
     func toggleTimeBudgetMode() {

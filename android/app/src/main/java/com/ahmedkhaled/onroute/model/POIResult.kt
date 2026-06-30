@@ -20,7 +20,8 @@ data class POIResult(
     val phoneNumber: String? = null,
     val todayHours: String? = null,
     val types: List<String>,
-    val photoReference: String? = null
+    val photoReference: String? = null,
+    @Transient var visited: Boolean = false
 ) {
     val latLng: LatLng get() = LatLng(lat, lng)
 
