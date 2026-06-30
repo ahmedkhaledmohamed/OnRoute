@@ -42,16 +42,30 @@ struct NavigationService {
         travelMode: String = "DRIVE",
         using app: NavigationApp
     ) {
-        AnalyticsService.shared.track("navigation_opened", properties: ["app": app.rawValue])
-        recordVisit(poi: poi, origin: origin, destination: destination)
+        navigate(stops: [poi], from: origin, originName: originName, destination: destination, destinationName: destinationName, travelMode: travelMode, using: app)
+    }
+
+    static func navigate(
+        stops: [POIResult],
+        from origin: CLLocationCoordinate2D?,
+        originName: String?,
+        destination: CLLocationCoordinate2D?,
+        destinationName: String?,
+        travelMode: String = "DRIVE",
+        using app: NavigationApp
+    ) {
+        AnalyticsService.shared.track("navigation_opened", properties: ["app": app.rawValue, "stopCount": stops.count])
+        for poi in stops {
+            recordVisit(poi: poi, origin: origin, destination: destination)
+        }
 
         switch app {
         case .appleMaps:
-            openAppleMaps(poi: poi, origin: origin, destination: destination, travelMode: travelMode)
+            openAppleMaps(stops: stops, origin: origin, destination: destination, travelMode: travelMode)
         case .googleMaps:
-            openGoogleMaps(poi: poi, origin: origin, originName: originName, destination: destination, destinationName: destinationName, travelMode: travelMode)
+            openGoogleMaps(stops: stops, origin: origin, originName: originName, destination: destination, destinationName: destinationName, travelMode: travelMode)
         case .waze:
-            openWaze(poi: poi)
+            openWaze(poi: stops.first ?? stops[0])
         }
     }
 
@@ -60,30 +74,27 @@ struct NavigationService {
     }
 
     private static func openAppleMaps(
-        poi: POIResult,
+        stops: [POIResult],
         origin: CLLocationCoordinate2D?,
         destination: CLLocationCoordinate2D?,
         travelMode: String = "DRIVE"
     ) {
-        let poiPlacemark = MKPlacemark(coordinate: poi.coordinate)
-        let poiItem = MKMapItem(placemark: poiPlacemark)
-        poiItem.name = poi.name
-
         var items: [MKMapItem] = []
 
         if let origin {
-            let originPlacemark = MKPlacemark(coordinate: origin)
-            items.append(MKMapItem(placemark: originPlacemark))
+            items.append(MKMapItem(placemark: MKPlacemark(coordinate: origin)))
         } else {
             items.append(.forCurrentLocation())
         }
 
-        items.append(poiItem)
+        for stop in stops {
+            let item = MKMapItem(placemark: MKPlacemark(coordinate: stop.coordinate))
+            item.name = stop.name
+            items.append(item)
+        }
 
         if let destination {
-            let destPlacemark = MKPlacemark(coordinate: destination)
-            let destItem = MKMapItem(placemark: destPlacemark)
-            items.append(destItem)
+            items.append(MKMapItem(placemark: MKPlacemark(coordinate: destination)))
         }
 
         MKMapItem.openMaps(
@@ -93,7 +104,7 @@ struct NavigationService {
     }
 
     private static func openGoogleMaps(
-        poi: POIResult,
+        stops: [POIResult],
         origin: CLLocationCoordinate2D?,
         originName: String?,
         destination: CLLocationCoordinate2D?,
@@ -101,7 +112,9 @@ struct NavigationService {
         travelMode: String = "DRIVE"
     ) {
         let originStr = originName ?? (origin.map { "\($0.latitude),\($0.longitude)" } ?? "")
-        let poiStr = poi.address.isEmpty ? "\(poi.coordinate.latitude),\(poi.coordinate.longitude)" : poi.address
+        let waypointsStr = stops.map { poi in
+            poi.address.isEmpty ? "\(poi.coordinate.latitude),\(poi.coordinate.longitude)" : poi.address
+        }.joined(separator: "|")
         let destStr = destinationName ?? (destination.map { "\($0.latitude),\($0.longitude)" } ?? "")
 
         let gmapMode: String
@@ -114,7 +127,7 @@ struct NavigationService {
         let urlString = "https://www.google.com/maps/dir/?api=1" +
             "&origin=\(originStr)" +
             "&destination=\(destStr)" +
-            "&waypoints=\(poiStr)" +
+            "&waypoints=\(waypointsStr)" +
             "&travelmode=\(gmapMode)"
 
         if let encoded = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),

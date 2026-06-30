@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var showResults = false
     @State private var detourLeg1: MKRoute?
     @State private var detourLeg2: MKRoute?
+    @State private var detourLegs: [MKRoute] = []
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var savedRoutes: [SavedRoute] = []
     @State private var recentSearches: [RecentSearch] = []
@@ -142,17 +143,18 @@ struct ContentView: View {
         ) {
             ForEach(NavigationApp.available) { app in
                 Button(app.rawValue) {
-                    if let poi = navigatingPOI {
-                        NavigationService.navigate(
-                            to: poi,
-                            from: viewModel.originCoordinate,
-                            originName: viewModel.originName,
-                            destination: viewModel.destinationCoordinate,
-                            destinationName: viewModel.destinationName,
-                            travelMode: viewModel.travelMode.rawValue,
-                            using: app
-                        )
-                    }
+                    let stops = viewModel.selectedStops.isEmpty
+                        ? (navigatingPOI.map { [$0] } ?? [])
+                        : viewModel.selectedStops
+                    NavigationService.navigate(
+                        stops: stops,
+                        from: viewModel.originCoordinate,
+                        originName: viewModel.originName,
+                        destination: viewModel.destinationCoordinate,
+                        destinationName: viewModel.destinationName,
+                        travelMode: viewModel.travelMode.rawValue,
+                        using: app
+                    )
                 }
             }
             if let poi = navigatingPOI {
@@ -173,17 +175,28 @@ struct ContentView: View {
                     .stroke(.blue.opacity(hasDetour ? 0.3 : 1.0), lineWidth: 5)
             }
 
-            if let detourLeg1 {
-                MapPolyline(detourLeg1.polyline)
+            ForEach(Array(detourLegs.enumerated()), id: \.offset) { _, leg in
+                MapPolyline(leg.polyline)
                     .stroke(.orange, lineWidth: 5)
             }
 
-            if let detourLeg2 {
-                MapPolyline(detourLeg2.polyline)
-                    .stroke(.orange, lineWidth: 5)
-            }
-
-            if let selectedPOI = viewModel.selectedPOI,
+            if !viewModel.selectedStops.isEmpty,
+               let origin = viewModel.originCoordinate,
+               let destination = viewModel.destinationCoordinate {
+                let letters = ["A","B","C","D","E","F","G","H"]
+                Annotation("Start", coordinate: origin) {
+                    WaypointMarker(letters[0], color: .green, label: "Start")
+                }
+                ForEach(Array(viewModel.selectedStops.enumerated()), id: \.element.placeId) { idx, stop in
+                    Annotation(stop.name, coordinate: stop.coordinate) {
+                        WaypointMarker(letters[min(idx + 1, letters.count - 1)], color: .orange, label: stop.name)
+                            .onTapGesture { clearDetourRoute() }
+                    }
+                }
+                Annotation("End", coordinate: destination) {
+                    WaypointMarker(letters[min(viewModel.selectedStops.count + 1, letters.count - 1)], color: .red, label: "End")
+                }
+            } else if let selectedPOI = viewModel.selectedPOI,
                let origin = viewModel.originCoordinate,
                let destination = viewModel.destinationCoordinate {
                 Annotation("Start", coordinate: origin) {
@@ -442,27 +455,38 @@ struct ContentView: View {
     // MARK: - POI Selection & Detour Route
 
     private func selectPOI(_ poi: POIResult) {
-        viewModel.selectedPOI = poi
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         AnalyticsService.shared.track("poi_selected", properties: [
             "detourSeconds": poi.detourSeconds,
             "rating": poi.rating,
         ])
 
+        if !viewModel.additionalQueries.isEmpty {
+            if let idx = viewModel.selectedStops.firstIndex(where: { $0.placeId == poi.placeId }) {
+                viewModel.selectedStops.remove(at: idx)
+            } else {
+                viewModel.selectedStops.append(poi)
+            }
+            viewModel.selectedPOI = viewModel.selectedStops.last
+            computeMultiStopRoute()
+        } else {
+            viewModel.selectedPOI = poi
+            computeSingleDetourRoute(poi)
+        }
+    }
+
+    private func computeSingleDetourRoute(_ poi: POIResult) {
         guard let origin = viewModel.originCoordinate,
               let destination = viewModel.destinationCoordinate else { return }
-
-        let waypoint = MKMapItem(placemark: MKPlacemark(coordinate: poi.coordinate))
-        waypoint.name = poi.name
 
         Task {
             let leg1Request = MKDirections.Request()
             leg1Request.source = MKMapItem(placemark: MKPlacemark(coordinate: origin))
-            leg1Request.destination = waypoint
+            leg1Request.destination = MKMapItem(placemark: MKPlacemark(coordinate: poi.coordinate))
             leg1Request.transportType = .automobile
 
             let leg2Request = MKDirections.Request()
-            leg2Request.source = waypoint
+            leg2Request.source = MKMapItem(placemark: MKPlacemark(coordinate: poi.coordinate))
             leg2Request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
             leg2Request.transportType = .automobile
 
@@ -474,7 +498,44 @@ struct ContentView: View {
                 await MainActor.run {
                     self.detourLeg1 = r1
                     self.detourLeg2 = r2
+                    self.detourLegs = [r1, r2]
                     fitDetourOnMap(leg1: r1, leg2: r2)
+                }
+            }
+        }
+    }
+
+    private func computeMultiStopRoute() {
+        guard let origin = viewModel.originCoordinate,
+              let destination = viewModel.destinationCoordinate,
+              !viewModel.selectedStops.isEmpty else {
+            detourLeg1 = nil
+            detourLeg2 = nil
+            detourLegs = []
+            return
+        }
+
+        let waypoints = viewModel.selectedStops.map(\.coordinate)
+        var allPoints = [origin] + waypoints + [destination]
+
+        Task {
+            var legs: [MKRoute] = []
+            for i in 0..<(allPoints.count - 1) {
+                let request = MKDirections.Request()
+                request.source = MKMapItem(placemark: MKPlacemark(coordinate: allPoints[i]))
+                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: allPoints[i + 1]))
+                request.transportType = .automobile
+                if let route = try? await MKDirections(request: request).calculate().routes.first {
+                    legs.append(route)
+                }
+            }
+
+            await MainActor.run {
+                self.detourLegs = legs
+                self.detourLeg1 = legs.first
+                self.detourLeg2 = legs.count > 1 ? legs.last : nil
+                if let first = legs.first, let last = legs.last {
+                    fitDetourOnMap(leg1: first, leg2: last)
                 }
             }
         }
@@ -483,7 +544,9 @@ struct ContentView: View {
     private func clearDetourRoute() {
         detourLeg1 = nil
         detourLeg2 = nil
+        detourLegs = []
         viewModel.selectedPOI = nil
+        viewModel.selectedStops = []
         fitRouteOnMap()
     }
 

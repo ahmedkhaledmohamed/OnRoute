@@ -20,6 +20,7 @@ final class RouteViewModel {
     var poiResults: [POIResult] = []
     var stopResults: [StopResults] = []
     var selectedPOI: POIResult?
+    var selectedStops: [POIResult] = []
     var searchQuery = "coffee"
     var additionalQueries: [String] = []
     var maxDetourMinutes: Double = 15
