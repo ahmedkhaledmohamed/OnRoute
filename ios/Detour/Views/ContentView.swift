@@ -21,6 +21,25 @@ struct ContentView: View {
 
     private var hasDetour: Bool { detourLeg1 != nil }
 
+    private var shareURL: URL {
+        var components = URLComponents(string: "\(APIService.baseURL)/api/share")!
+        var items: [URLQueryItem] = []
+        if let o = viewModel.originCoordinate {
+            items.append(URLQueryItem(name: "oLat", value: String(o.latitude)))
+            items.append(URLQueryItem(name: "oLng", value: String(o.longitude)))
+        }
+        if let d = viewModel.destinationCoordinate {
+            items.append(URLQueryItem(name: "dLat", value: String(d.latitude)))
+            items.append(URLQueryItem(name: "dLng", value: String(d.longitude)))
+        }
+        items.append(URLQueryItem(name: "oName", value: viewModel.originName ?? "Origin"))
+        items.append(URLQueryItem(name: "dName", value: viewModel.destinationName ?? "Destination"))
+        items.append(URLQueryItem(name: "query", value: viewModel.searchQuery))
+        items.append(URLQueryItem(name: "results", value: String(viewModel.filteredResults.count)))
+        components.queryItems = items
+        return components.url ?? URL(string: "https://onroute-landing.vercel.app")!
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             mapView
@@ -404,8 +423,16 @@ struct ContentView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        showResults = false
+                    HStack(spacing: 12) {
+                        if viewModel.isSearchReady {
+                            ShareLink(item: shareURL) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 14))
+                            }
+                        }
+                        Button("Done") {
+                            showResults = false
+                        }
                     }
                 }
             }

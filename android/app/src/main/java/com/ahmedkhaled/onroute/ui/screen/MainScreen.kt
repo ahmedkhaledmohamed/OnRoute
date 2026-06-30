@@ -11,7 +11,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import android.content.Intent
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Email
@@ -414,6 +416,19 @@ private fun ResultsSheet(viewModel: RouteViewModel) {
             if (viewModel.isSearchReady) {
                 IconButton(
                     onClick = {
+                        val shareUrl = buildShareUrl(viewModel)
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, "${viewModel.originName ?: "A"} → ${viewModel.destinationName ?: "B"} — ${viewModel.filteredResults.size} stops found on OnRoute\n$shareUrl")
+                        }
+                        context.startActivity(Intent.createChooser(intent, "Share route"))
+                    },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(Icons.Default.Share, "Share route", modifier = Modifier.size(18.dp))
+                }
+                IconButton(
+                    onClick = {
                         val name = "${viewModel.originName ?: "A"} → ${viewModel.destinationName ?: "B"}"
                         viewModel.saveCurrentRoute(name)
                     },
@@ -475,6 +490,24 @@ private fun ResultsSheet(viewModel: RouteViewModel) {
             }
         }
     }
+}
+
+private fun buildShareUrl(viewModel: RouteViewModel): String {
+    val base = "https://backend-navy-iota.vercel.app/api/share"
+    val params = mutableListOf<String>()
+    viewModel.originLatLng?.let {
+        params.add("oLat=${it.latitude}")
+        params.add("oLng=${it.longitude}")
+    }
+    viewModel.destinationLatLng?.let {
+        params.add("dLat=${it.latitude}")
+        params.add("dLng=${it.longitude}")
+    }
+    params.add("oName=${java.net.URLEncoder.encode(viewModel.originName ?: "Origin", "UTF-8")}")
+    params.add("dName=${java.net.URLEncoder.encode(viewModel.destinationName ?: "Destination", "UTF-8")}")
+    params.add("query=${java.net.URLEncoder.encode(viewModel.searchQuery, "UTF-8")}")
+    params.add("results=${viewModel.filteredResults.size}")
+    return "$base?${params.joinToString("&")}"
 }
 
 private const val DARK_MAP_STYLE = """[
